@@ -34,14 +34,7 @@ export default function RegisterPage() {
       return;
     }
     try {
-      await register({
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-        company: formData.company,
-        phone: formData.phone,
-        email: formData.email,
-        password: formData.password,
-      });
+      
       router.push("/dashboard/client");
     } catch (err) {
       // L'erreur est gérée par le hook

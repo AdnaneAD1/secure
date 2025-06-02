@@ -80,54 +80,6 @@ export default function Settings() {
           link: "#"
         }
       ]
-    },
-    {
-      title: "Sécurité",
-      icon: Shield,
-      items: [
-        {
-          title: "Mot de passe",
-          description: "Changez votre mot de passe",
-          link: "#"
-        },
-        {
-          title: "Authentification à deux facteurs",
-          description: "Renforcez la sécurité de votre compte",
-          link: "#"
-        }
-      ]
-    },
-    {
-      title: "Paiements",
-      icon: CreditCard,
-      items: [
-        {
-          title: "Méthodes de paiement",
-          description: "Gérez vos moyens de paiement",
-          link: "#"
-        },
-        {
-          title: "Historique des transactions",
-          description: "Consultez l'historique de vos paiements",
-          link: "#"
-        }
-      ]
-    },
-    {
-      title: "Notifications",
-      icon: Bell,
-      items: [
-        {
-          title: "Préférences de notification",
-          description: "Personnalisez vos notifications",
-          link: "#"
-        },
-        {
-          title: "Emails",
-          description: "Gérez vos préférences d'emails",
-          link: "#"
-        }
-      ]
     }
   ];
 
@@ -249,46 +201,8 @@ export default function Settings() {
 
       {/* Settings Sections */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Notifications section intégrée */}
-        <div className="bg-white rounded-xl border border-gray-100">
-          <div className="p-6 border-b border-gray-100">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-[#dd7109]/10 flex items-center justify-center">
-                <Bell className="w-5 h-5 text-[#dd7109]" />
-              </div>
-              <h3 className="text-lg font-semibold text-gray-900">Notifications</h3>
-            </div>
-          </div>
-          <div className="divide-y divide-gray-100">
-            <div className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h4 className="font-medium text-gray-900">Préférences de notification</h4>
-                  <p className="text-sm text-gray-500 mt-1">Personnalisez vos notifications</p>
-                </div>
-                <button className="text-xs text-[#dd7109] underline" onClick={()=>setEditNotif(true)}>Modifier</button>
-              </div>
-              {editNotif && (
-                <div className="mt-4 p-4 bg-gray-50 rounded-xl">
-                  {notifLoading && <div className="text-gray-500">Chargement…</div>}
-                  {notifError && <div className="text-red-500">{notifError}</div>}
-                  <label className="flex items-center gap-2 mb-2">
-                    <input type="checkbox" checked={!!notifPrefs.email} onChange={e=>setNotifPrefs((f: any)=>({...f,email:e.target.checked}))}/>
-                    Recevoir les emails
-                  </label>
-                  <label className="flex items-center gap-2 mb-2">
-                    <input type="checkbox" checked={!!notifPrefs.push} onChange={e=>setNotifPrefs((f: any)=>({...f,push:e.target.checked}))}/>
-                    Notifications push
-                  </label>
-                  <button className="bg-[#dd7109] text-white px-4 py-2 rounded mr-2" onClick={handleNotifSave}>Enregistrer</button>
-                  <button className="text-gray-500" onClick={()=>setEditNotif(false)}>Annuler</button>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
         {/* Les autres sections restent statiques ou à intégrer plus tard */}
-        {sections.filter(s=>s.title!=="Notifications").map((section, index) => (
+        {/* {sections.filter(s=>s.title!=="Notifications").map((section, index) => (
           <div key={index} className="bg-white rounded-xl border border-gray-100">
             <div className="p-6 border-b border-gray-100">
               <div className="flex items-center gap-3">
@@ -316,7 +230,7 @@ export default function Settings() {
               ))}
             </div>
           </div>
-        ))}
+        ))} */}
       </div>
     </div>
   );

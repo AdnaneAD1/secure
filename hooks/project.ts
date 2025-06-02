@@ -2,6 +2,13 @@ import { useState } from "react";
 import { db } from "@/firebase/ClientApp";
 import { collection, doc, getDocs, getDoc, updateDoc, query, where, addDoc } from "firebase/firestore";
 
+// Fonction utilitaire pour dashboard : récupère tous les projets d'un client
+export async function getAllClientProjects(client_id: string) {
+  const q = query(collection(db, "projects"), where("client_id", "==", client_id));
+  const snap = await getDocs(q);
+  return snap.docs.map(docSnap => ({ id: docSnap.id, ...docSnap.data() })) as Project[];
+}
+
 export interface Project {
   id: string;
   name: string;

@@ -72,66 +72,38 @@ export default function ProjectsPage() {
     if (user?.uid) fetchProjects();
   }, [user?.uid, fetchProjects]);
 
+  // Calculs dynamiques pour les stats
+  const totalBudget = projects.reduce((sum, p) => sum + (p.budget || 0), 0);
+  const totalPaid = projects.reduce((sum, p) => sum + (p.paidAmount || 0), 0);
+  const avgProgress = projects.length > 0 ? Math.round(projects.reduce((sum, p) => sum + (p.progress || 0), 0) / projects.length) : 0;
+  const activeProjects = projects.filter(p => p.status === "En cours").length;
+
   const stats = [
     {
       title: "Projets actifs",
-      value: projects.filter(project => project.status === "En cours").length.toString(),
-      trend: "+50%",
-      description: "vs. mois dernier"
+      value: activeProjects.toString(),
+      icon: <CheckCircle className="w-6 h-6 text-emerald-600" />, 
+      color: "bg-emerald-50 text-emerald-700"
     },
     {
       title: "Budget total",
-      value: "630 000 €",
-      trend: "+25%",
-      description: "vs. mois dernier"
+      value: totalBudget.toLocaleString() + " €",
+      icon: <CreditCard className="w-6 h-6 text-[#dd7109]" />, 
+      color: "bg-orange-50 text-[#dd7109]"
     },
     {
       title: "Montant versé",
-      value: "189 000 €",
-      trend: "+15%",
-      description: "vs. mois dernier"
+      value: totalPaid.toLocaleString() + " €",
+      icon: <ArrowUpRight className="w-6 h-6 text-blue-600" />, 
+      color: "bg-blue-50 text-blue-700"
+    },
+    {
+      title: "Avancement moyen",
+      value: avgProgress + "%",
+      icon: <Clock className="w-6 h-6 text-amber-500" />, 
+      color: "bg-amber-50 text-amber-700"
     }
   ];
-
-  const handleNewProjectSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!selectedBroker) {
-      setShowBrokerSelectionModal(true);
-      return;
-    }
-    // Handle project creation
-    setShowNewProjectModal(false);
-    setShowPaymentModal(true);
-  };
-
-  const handleBrokerSelect = (broker: Broker) => {
-    setSelectedBroker(broker);
-    setShowBrokerSelectionModal(false);
-    setShowPaymentModal(true);
-  };
-
-  const handlePaymentSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setShowPaymentModal(false);
-    setShowPaymentMethodModal(true);
-  };
-
-  const handlePaymentMethodSelect = (method: string) => {
-    // Ici vous intégreriez le SDK de paiement correspondant
-    console.log(`Paiement via ${method}`);
-    setShowPaymentMethodModal(false);
-    // Reset form and refresh projects
-    setNewProject({
-      name: "",
-      description: "",
-      budget: "",
-      type: "",
-      location: "",
-      startDate: "",
-      estimatedEndDate: "",
-    });
-    setSelectedBroker(null);
-  };
 
   return (
     <div className="min-h-screen bg-transparent">
@@ -164,18 +136,6 @@ export default function ProjectsPage() {
               <h1 className="text-2xl font-bold">Projets</h1>
               <p className="text-amber-100 mt-1">Gérez vos projets de construction et rénovation</p>
             </div>
-            <div className="flex flex-col sm:flex-row gap-3">
-              <button
-                onClick={() => setShowFilters(!showFilters)}
-                className={`flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl transition-all ${showFilters
-                    ? 'bg-white text-[#dd7109] shadow-md'
-                    : 'bg-white/10 text-white hover:bg-white/20 border border-white/20'
-                  }`}
-              >
-                <Filter className="w-4 h-4" />
-                <span>Filtres</span>
-              </button>
-            </div>
           </div>
         </div>
       </div>
@@ -183,26 +143,19 @@ export default function ProjectsPage() {
       {/* Contenu principal */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 -mt-8">
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-4 gap-5 mb-8">
           {stats.map((stat, index) => (
             <div
               key={index}
-              className="bg-white/80 backdrop-blur-sm rounded-xl p-5 shadow-sm border border-gray-100/50 hover:shadow-md transition-all"
+              className={`flex items-center gap-4 p-5 rounded-xl shadow-sm border border-gray-100/50 hover:shadow-md transition-all ${stat.color}`}
             >
-              <div className="flex items-start justify-between">
-                <div>
-                  <h3 className="text-sm font-medium text-gray-500 mb-1">{stat.title}</h3>
-                  <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
-                </div>
-                <div className="flex flex-col items-end">
-                  <div className="flex items-center text-green-600 text-sm font-medium">
-                    <ArrowUpRight className="w-4 h-4" />
-                    {stat.trend}
-                  </div>
-                  <p className="text-xs text-gray-400 mt-1">{stat.description}</p>
-                </div>
+              <div className="flex-shrink-0">
+                {stat.icon}
               </div>
-              <div className="mt-3 h-1 w-full bg-gradient-to-r from-[#dd7109]/30 to-amber-300 rounded-full"></div>
+              <div>
+                <h3 className="text-sm font-medium mb-1">{stat.title}</h3>
+                <p className="text-2xl font-bold">{stat.value}</p>
+              </div>
             </div>
           ))}
         </div>
@@ -329,18 +282,7 @@ export default function ProjectsPage() {
                       <p className="text-lg font-semibold text-gray-900">{new Date(project.estimatedEndDate).toLocaleDateString()}</p>
                     </div>
                   </div>
-
                   <div className="space-y-3">
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-gray-500">Progression</span>
-                      <span className="font-medium text-gray-900">{project.progress}%</span>
-                    </div>
-                    <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-gradient-to-r from-[#dd7109] to-amber-500 rounded-full transition-all duration-500"
-                        style={{ width: `${project.progress}%` }}
-                      />
-                    </div>
                     <div className="flex justify-end mt-4">
                       <Link href={`/dashboard/client/projects/${project.id}`} legacyBehavior>
                         <a className="inline-block bg-[#dd7109] text-white px-4 py-2 rounded-lg text-xs font-semibold hover:bg-[#b95d0a] transition-colors">

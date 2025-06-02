@@ -129,16 +129,6 @@ export default function LoginPage() {
                 </>
               )}
             </button>
-
-            <p className="text-center text-gray-400">
-              Pas encore de compte?{" "}
-              <Link
-                href="/auth/register"
-                className="text-[#dd7109] hover:text-[#dd7109]/90 transition-colors"
-              >
-                S'inscrire
-              </Link>
-            </p>
           </form>
         </div>
       </div>

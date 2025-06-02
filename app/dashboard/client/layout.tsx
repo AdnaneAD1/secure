@@ -88,11 +88,6 @@ export default function ClientDashboardLayout({
       href: "/dashboard/client/payments",
     },
     {
-      icon: FileText,
-      label: "Factures",
-      href: "/dashboard/client/invoices",
-    },
-    {
       icon: Settings,
       label: "Paramètres",
       href: "/dashboard/client/settings",
@@ -207,44 +202,6 @@ export default function ClientDashboardLayout({
               <button className="w-10 h-10 rounded-lg border border-gray-200 flex items-center justify-center hover:bg-gray-100 transition-colors">
                 <HelpCircle className="w-5 h-5 text-gray-600" />
               </button>
-
-              {/* Notifications */}
-              <div className="relative">
-                <button 
-                  onClick={() => setShowNotifications(!showNotifications)}
-                  className="w-10 h-10 rounded-lg border border-gray-200 flex items-center justify-center hover:bg-gray-100 transition-colors relative"
-                >
-                  <Bell className="w-5 h-5 text-gray-600" />
-                  <span className="absolute -top-1 -right-1 w-5 h-5 bg-[#dd7109] rounded-full text-[10px] flex items-center justify-center text-white">
-                    2
-                  </span>
-                </button>
-
-                {showNotifications && (
-                  <div className="absolute top-12 right-0 w-80 md:w-96 bg-white rounded-lg border border-gray-200 shadow-xl">
-                    <div className="p-4 border-b border-gray-200">
-                      <h3 className="font-semibold text-gray-900">Notifications</h3>
-                    </div>
-                    <div className="max-h-[400px] overflow-y-auto">
-                      {notifications.map((notification) => (
-                        <div
-                          key={notification.id}
-                          className="p-4 border-b border-gray-200 hover:bg-gray-50 transition-colors cursor-pointer"
-                        >
-                          <p className="font-medium text-gray-900">{notification.title}</p>
-                          <p className="text-sm text-gray-600 mt-1">{notification.message}</p>
-                          <p className="text-xs text-gray-500 mt-2">{notification.time}</p>
-                        </div>
-                      ))}
-                    </div>
-                    <div className="p-4">
-                      <button className="text-[#dd7109] text-sm font-medium hover:text-[#dd7109]/80 transition-colors">
-                        Voir toutes les notifications
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </div>
 
               {/* User - Hidden on mobile */}
               <button className="hidden md:flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-gray-100 transition-colors">

@@ -1,6 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import * as React from "react";
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { useDashboardStats } from "@/hooks/dashboard";
 import {
   AreaChart,
   Area,
@@ -31,88 +34,74 @@ import {
   ChevronRight
 } from "lucide-react";
 
-const areaChartData = [
-  { name: "Jan", Acomptes: 4000, Paiements: 2400 },
-  { name: "Fév", Acomptes: 3000, Paiements: 1398 },
-  { name: "Mar", Acomptes: 2000, Paiements: 9800 },
-  { name: "Avr", Acomptes: 2780, Paiements: 3908 },
-  { name: "Mai", Acomptes: 1890, Paiements: 4800 },
-  { name: "Jun", Acomptes: 2390, Paiements: 3800 },
-];
+const monthLabels = ["Jan", "Fév", "Mar", "Avr", "Mai", "Jun", "Jul", "Aoû", "Sep", "Oct", "Nov", "Déc"];
 
-const barChartData = [
-  { name: "Lun", value: 20 },
-  { name: "Mar", value: 45 },
-  { name: "Mer", value: 35 },
-  { name: "Jeu", value: 50 },
-  { name: "Ven", value: 30 },
-  { name: "Sam", value: 20 },
-  { name: "Dim", value: 15 },
-];
 
-const pieChartData = [
-  { name: "Payé", value: 30, color: "#10B981" },
-  { name: "En attente", value: 45, color: "#F59E0B" },
-  { name: "Non payé", value: 25, color: "#EF4444" },
-];
+
+
 
 export default function ClientDashboard() {
-  const [projects] = useState([
-    {
-      id: 1,
-      name: "Villa Moderne",
-      budget: 150000,
-      paid: 45000,
-      progress: 30,
-      status: "En cours",
-      dueDate: "2024-06-15",
-      region: "Île-de-France",
-      image: "/modern-house.jpg"
-    },
-    {
-      id: 2,
-      name: "Rénovation Appartement",
-      budget: 75000,
-      paid: 22500,
-      progress: 30,
-      status: "En attente",
-      dueDate: "2024-05-20",
-      region: "Provence-Alpes-Côte d'Azur",
-      image: "/apartment.jpg"
-    },
-  ]);
+  const { stats, loading, projects, payments } = useDashboardStats();
 
-  const stats = [
+  // Données dynamiques pour le PieChart Statut des paiements
+  const pieChartData = React.useMemo(() => {
+    const total = payments.length;
+    if (total === 0) return [];
+    const countValide = payments.filter((p: any) => p.status === "validé").length;
+    const countAttente = payments.filter((p: any) => p.status === "en_attente").length;
+    // Si tu ajoutes d'autres statuts, adapte ici
+    return [
+      { name: "Payé", value: countValide, color: "#10B981" },
+      { name: "En attente", value: countAttente, color: "#F59E0B" },
+    ];
+  }, [payments]);
+
+  const areaChartData = React.useMemo(() => {
+    // Initialisation : 12 mois à zéro
+    const data = monthLabels.map((name, i) => ({ name, Acomptes: 0 }));
+    const currentYear = new Date().getFullYear();
+    payments.forEach((p: any) => {
+      // On suppose que p.date est une string ISO ou yyyy-mm-dd
+      const date = new Date(p.date);
+      if (date.getFullYear() !== currentYear) return;
+      const month = date.getMonth(); // 0 = Janvier
+      data[month].Acomptes += typeof p.amount === 'number' ? p.amount : 0;
+    });
+    return data;
+  }, [payments]);
+
+  const barChartData = React.useMemo(() => {
+    const statusCounts: Record<string, number> = {};
+    projects.forEach((p: any) => {
+      const status = p.status || "Inconnu";
+      statusCounts[status] = (statusCounts[status] || 0) + 1;
+    });
+    return Object.entries(statusCounts).map(([name, value]) => ({ name, value }));
+  }, [projects]);
+
+  const statCards = [
     {
       title: "Projets actifs",
-      value: "2",
+      value: stats ? stats.activeProjects.toString() : "-",
       icon: Building2,
-      trend: "+50%",
-      trendUp: true,
       color: "bg-indigo-100 text-indigo-600"
     },
     {
       title: "Budget total",
-      value: "225 000 €",
+      value: stats ? stats.totalBudget.toLocaleString("fr-FR") + " €" : "-",
       icon: TrendingUp,
-      trend: "+25%",
-      trendUp: true,
       color: "bg-emerald-100 text-emerald-600"
     },
     {
       title: "Acomptes versés",
-      value: "67 500 €",
+      value: stats ? stats.totalPaid.toLocaleString("fr-FR") + " €" : "-",
       icon: FileCheck,
-      trend: "+15%",
-      trendUp: true,
       color: "bg-amber-100 text-amber-600"
     },
     {
       title: "Reste à payer",
-      value: "157 500 €",
+      value: stats ? stats.totalLeft.toLocaleString("fr-FR") + " €" : "-",
       icon: Clock,
-      trend: "-10%",
-      trendUp: false,
       color: "bg-rose-100 text-rose-600"
     },
   ];
@@ -125,21 +114,11 @@ export default function ClientDashboard() {
           <h1 className="text-3xl font-bold text-gray-900">Tableau de bord</h1>
           <p className="text-gray-500 mt-1">Bienvenue, voici un aperçu de vos projets</p>
         </div>
-        <div className="flex items-center gap-3 w-full md:w-auto">
-          <button className="flex items-center gap-2 px-4 py-2.5 bg-white text-gray-700 rounded-xl hover:bg-gray-50 transition-all shadow-sm hover:shadow-md border border-gray-200">
-            <Filter className="w-4 h-4" />
-            <span>Filtres</span>
-          </button>
-          <button className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-orange-500 to-amber-500 text-white rounded-xl hover:shadow-lg transition-all shadow-md hover:from-orange-600 hover:to-amber-600">
-            <Plus className="w-4 h-4" />
-            <span>Nouveau projet</span>
-          </button>
-        </div>
       </div>
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-        {stats.map((stat, index) => (
+        {statCards.map((stat, index) => (
           <div 
             key={index} 
             className="bg-white rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow border border-gray-100 overflow-hidden relative"
@@ -150,17 +129,8 @@ export default function ClientDashboard() {
                 <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
               </div>
               <div className={`w-12 h-12 rounded-xl ${stat.color.split(' ')[0]} flex items-center justify-center`}>
-                <stat.icon className="w-5 h-5" />
+                {stat.icon && React.createElement(stat.icon, { className: "w-5 h-5" })}
               </div>
-            </div>
-            <div className="mt-4 flex items-center gap-1">
-              <span className={`text-sm font-medium ${
-                stat.trendUp ? 'text-green-600' : 'text-red-600'
-              }`}>
-                {stat.trendUp ? <ArrowUpRight className="w-4 h-4" /> : <ArrowDownRight className="w-4 h-4" />}
-                {stat.trend}
-              </span>
-              <span className="text-xs text-gray-400 ml-1">vs mois dernier</span>
             </div>
             <div className={`absolute bottom-0 left-0 h-1 w-full ${stat.color.split(' ')[0].replace('bg-', 'bg-gradient-to-r from-')}-500 to-${stat.color.split(' ')[0].replace('bg-', '')}-300`}></div>
           </div>
@@ -298,15 +268,15 @@ export default function ClientDashboard() {
           <div className="p-5 border-b border-gray-100">
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-semibold text-gray-900">Projets en cours</h2>
-              <button className="flex items-center gap-1 text-amber-600 text-sm font-medium hover:text-amber-700 group">
+              <Link href="/dashboard/client/projects"><button className="flex items-center gap-1 text-amber-600 text-sm font-medium hover:text-amber-700 group">
                 <span>Voir tout</span>
                 <ChevronRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-              </button>
+              </button></Link>
             </div>
           </div>
 
           <div className="divide-y divide-gray-100">
-            {projects.map((project) => (
+            {projects.filter((project) => project.status === "En cours").map((project) => (
               <div 
                 key={project.id} 
                 className="p-5 hover:bg-gray-50 transition-colors group"
@@ -322,11 +292,11 @@ export default function ClientDashboard() {
                       <div>
                         <h3 className="font-semibold text-gray-900 mb-1 group-hover:text-amber-600 transition-colors">{project.name}</h3>
                         <div className="flex items-center gap-2 text-sm text-gray-500">
-                          <span>{project.region}</span>
+                          <span>{project.location}</span>
                           <span>•</span>
                           <span className="flex items-center gap-1">
                             <Calendar className="w-3 h-3" />
-                            {new Date(project.dueDate).toLocaleDateString()}
+                            {new Date(project.startDate).toLocaleDateString()}
                           </span>
                         </div>
                       </div>
@@ -346,19 +316,7 @@ export default function ClientDashboard() {
                       </div>
                       <div className="flex items-center justify-between text-sm">
                         <span className="text-gray-500">Acompte versé</span>
-                        <span className="font-medium text-gray-900">{project.paid.toLocaleString()} €</span>
-                      </div>
-                      <div>
-                        <div className="flex items-center justify-between text-sm mb-2">
-                          <span className="text-gray-500">Progression</span>
-                          <span className="font-medium text-gray-900">{project.progress}%</span>
-                        </div>
-                        <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
-                          <div
-                            className="h-full bg-gradient-to-r from-amber-400 to-amber-600 rounded-full transition-all duration-500"
-                            style={{ width: `${project.progress}%` }}
-                          />
-                        </div>
+                        <span className="font-medium text-gray-900">{typeof project.paidAmount === 'number' ? project.paidAmount.toLocaleString() : '-'} €</span>
                       </div>
                     </div>
                   </div>

@@ -8,13 +8,15 @@ export async function POST(req: NextRequest) {
   const savedFiles: string[] = [];
 
   for (const file of files) {
-    if (typeof file === "object" && "arrayBuffer" in file) {
-      const buffer = Buffer.from(await file.arrayBuffer());
+    if (file instanceof File) {
+      // @ts-ignore: File.arrayBuffer is available in edge runtime
+      const arrayBuffer = await file.arrayBuffer();
+      const uint8Array = new Uint8Array(arrayBuffer);
       const filename = `${Date.now()}-${file.name}`.replace(/[^a-zA-Z0-9.\-_]/g, "_");
       const uploadDir = path.join(process.cwd(), "public", "notes_uploads");
       await fs.mkdir(uploadDir, { recursive: true });
       const filePath = path.join(uploadDir, filename);
-      await fs.writeFile(filePath, buffer);
+      await fs.writeFile(filePath, uint8Array);
       savedFiles.push(`/notes_uploads/${filename}`);
     }
   }
