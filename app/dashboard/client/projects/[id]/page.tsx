@@ -171,7 +171,7 @@ export default function ProjectDetailsPage({ params }: { params: { id: string } 
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
         <div className="flex items-center gap-4">
           <div className="rounded-full p-1 bg-orange-100 inline-block shadow-sm">
-            <Image src={project.image || "/avatar.png"} alt="avatar" width={56} height={56} className="rounded-full border-2 border-orange-200" />
+            <Image src={project.image || "https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg"} alt="avatar" width={100} height={100} className="rounded-full border-2 border-orange-200" />
           </div>
           <div>
             <div className="font-semibold text-lg text-[#dd7109]">{project.name}</div>
@@ -256,7 +256,7 @@ export default function ProjectDetailsPage({ params }: { params: { id: string } 
           {clientProfile ? (
             <>
               <div className="flex items-center gap-2 mb-2">
-                <Image src={clientProfile.photoURL || "/avatar.png"} alt="avatar" width={32} height={32} className="rounded-full" />
+                <Image src={clientProfile.photoURL || "https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg"} alt="avatar" width={50} height={50} className="rounded-full" />
                 <div>
                   <div className="font-medium text-gray-800 text-sm">{clientProfile.firstName} {clientProfile.lastName}</div>
                   <div className="text-xs text-gray-500">{clientProfile.company}</div>
