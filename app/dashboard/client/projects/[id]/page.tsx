@@ -297,7 +297,6 @@ export default function ProjectDetailsPage({ params }: { params: { id: string } 
                 <th className="py-2">Type</th>
                 <th className="py-2">Statut</th>
                 <th className="py-2">Montant</th>
-                <th className="py-2">Historique</th>
                 <th className="py-2">Actions</th>
               </tr>
             </thead>
