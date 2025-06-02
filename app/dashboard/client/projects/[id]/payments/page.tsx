@@ -25,7 +25,7 @@ export default function ProjectPaymentsPage() {
           <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" strokeLinecap="round" strokeLinejoin="round" /></svg>
           Retour
         </button>
-        <h2 className="text-lg font-semibold text-gray-900">Mes acomptes</h2>
+        <h2 className="text-lg font-semibold text-gray-900">Acomptes</h2>
       </div>
       <div className="flex flex-col gap-8">
         {loading && (
@@ -35,9 +35,9 @@ export default function ProjectPaymentsPage() {
           <div className="text-center text-red-500 py-12">{error}</div>
         )}
         {!loading && !error && payments.length === 0 && (
-          <div className="text-center text-gray-400 py-12">Aucun acompte pour ce projet</div>
+          <div className="text-center text-gray-400 py-12">Aucune demande d'acompte pour ce projet</div>
         )}
-        {payments.length > 0 && payments.map(payment => (
+        {payments.length > 0 && payments.filter((payment) => payment.status === "en_attente").map(payment => (
           <div key={payment.id} className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex flex-col md:flex-row md:items-center md:justify-between">
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-3 mb-1">

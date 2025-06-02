@@ -171,7 +171,13 @@ export default function ProjectDetailsPage({ params }: { params: { id: string } 
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
         <div className="flex items-center gap-4">
           <div className="rounded-full p-1 bg-orange-100 inline-block shadow-sm">
-            <Image src={project.image || "https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg"} alt="avatar" width={100} height={100} className="rounded-full border-2 border-orange-200" />
+            <Image
+              src={project.image || "https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg"}
+              alt="avatar"
+              width={120}
+              height={120}
+              className="w-[120px] h-[120px] rounded-full object-cover border-2 border-orange-200"
+            />
           </div>
           <div>
             <div className="font-semibold text-lg text-[#dd7109]">{project.name}</div>
@@ -243,7 +249,7 @@ export default function ProjectDetailsPage({ params }: { params: { id: string } 
           <button className="flex items-center gap-1 px-4 py-2 rounded-t-lg text-gray-600 hover:text-[#dd7109] hover:bg-orange-50 transition">
             {/* Payments icon */}
             <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.7" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2" /><path d="M2 10h20" /><circle cx="8" cy="15" r="2" /><circle cx="16" cy="15" r="2" /></svg>
-            Mes acomptes
+            Acomptes
             <span className="ml-2 bg-gray-100 text-xs rounded px-2 py-0.5"></span>
           </button>
         </Link>
@@ -251,12 +257,18 @@ export default function ProjectDetailsPage({ params }: { params: { id: string } 
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         {/* Informations client */}
-        <div className="bg-[#f9fafb] rounded-xl p-6 shadow-sm border border-orange-100">
+        <div className="bg-[#f9fafb] rounded-xl p-6 shadow-sm border">
           <div className="font-semibold text-[#dd7109] mb-2">Informations client</div>
           {clientProfile ? (
             <>
               <div className="flex items-center gap-2 mb-2">
-                <Image src={clientProfile.photoURL || "https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg"} alt="avatar" width={50} height={50} className="rounded-full" />
+                <Image
+                  src={clientProfile.photoURL || "https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg"}
+                  alt="avatar"
+                  width={70}
+                  height={70}
+                  className="w-[70px] h-[70px] rounded-full object-cover border-2 border-orange-200"
+                />
                 <div>
                   <div className="font-medium text-gray-800 text-sm">{clientProfile.firstName} {clientProfile.lastName}</div>
                   <div className="text-xs text-gray-500">{clientProfile.company}</div>

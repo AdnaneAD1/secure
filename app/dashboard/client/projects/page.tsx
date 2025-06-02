@@ -75,8 +75,26 @@ export default function ProjectsPage() {
   // Calculs dynamiques pour les stats
   const totalBudget = projects.reduce((sum, p) => sum + (p.budget || 0), 0);
   const totalPaid = projects.reduce((sum, p) => sum + (p.paidAmount || 0), 0);
-  const avgProgress = projects.length > 0 ? Math.round(projects.reduce((sum, p) => sum + (p.progress || 0), 0) / projects.length) : 0;
+  const avgProgress = totalBudget > 0 ? Math.round((totalPaid / totalBudget) * 100) : 0;
   const activeProjects = projects.filter(p => p.status === "En cours").length;
+
+  // Filtrage combiné search + filter
+  const filteredProjects = projects.filter((project) => {
+    // Filtres d'état
+    if (activeFilter === "in_progress" && project.status !== "En cours") return false;
+    if (activeFilter === "completed" && project.status !== "Terminé") return false;
+    if (activeFilter === "pending" && project.status !== "En attente") return false;
+    // Barre de recherche (nom ou description)
+    const search = searchTerm.toLowerCase();
+    if (
+      search &&
+      !project.name.toLowerCase().includes(search) &&
+      !project.description.toLowerCase().includes(search)
+    ) {
+      return false;
+    }
+    return true;
+  });
 
   const stats = [
     {
@@ -194,6 +212,15 @@ export default function ProjectsPage() {
                   En cours
                 </button>
                 <button
+                  onClick={() => setActiveFilter("pending")}
+                  className={`px-4 py-2 rounded-xl transition-all text-sm font-medium ${activeFilter === "pending"
+                      ? 'bg-[#dd7109] text-white'
+                      : 'text-gray-700 hover:bg-gray-100 border border-gray-200'
+                    }`}
+                >
+                  En attente
+                </button>
+                <button
                   onClick={() => setActiveFilter("completed")}
                   className={`px-4 py-2 rounded-xl transition-all text-sm font-medium ${activeFilter === "completed"
                       ? 'bg-[#dd7109] text-white'
@@ -241,7 +268,7 @@ export default function ProjectsPage() {
 
         {/* Projects List */}
         <div className="space-y-6">
-          {projects.map((project) => (
+          {filteredProjects.map((project) => (
             <div
               key={project.id}
               className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-sm border border-gray-100/50 hover:shadow-md transition-all"
