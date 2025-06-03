@@ -283,7 +283,7 @@ export default function ProjectDetailsPage({ params }: { params: { id: string } 
           )}
         </div>
         {/* Acteurs du projet */}
-        <div className="bg-[#f9fafb] rounded-xl p-6 shadow-sm border border-orange-100">
+        <div className="bg-[#f9fafb] rounded-xl p-6 shadow-sm border">
           <div className="font-semibold text-[#dd7109] mb-2">Acteurs du projet</div>
           <div className="flex items-center gap-2 mb-2">
             <Users className="w-4 h-4 text-gray-400" />
@@ -299,7 +299,7 @@ export default function ProjectDetailsPage({ params }: { params: { id: string } 
       </div>
 
       {/* Devis */}
-      <div className="bg-[#f9fafb] rounded-xl p-6 shadow-sm border border-orange-100">
+      <div className="bg-[#f9fafb] rounded-xl p-6 shadow-sm border">
         <div className="font-semibold text-[#dd7109] mb-4">Devis</div>
         <div className="overflow-x-auto">
           <table className="min-w-full text-sm">

@@ -235,85 +235,93 @@ export default function PaymentTracking() {
 
         {/* Liste des paiements */}
         {filteredPayments.length > 0 ? (
-          <>
-            <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm border border-gray-100/50 overflow-hidden mb-4">
-              <div className="grid grid-cols-12 bg-gray-50/50 p-4 border-b border-gray-100/50">
-                <div className="col-span-3 font-medium text-sm text-gray-500">Projet</div>
-                <div className="col-span-2 font-medium text-sm text-gray-500">Montant</div>
-                <div className="col-span-2 font-medium text-sm text-gray-500">Méthode</div>
-                <div className="col-span-2 font-medium text-sm text-gray-500">Statut</div>
-                <div className="col-span-1"></div>
-              </div>
-              
-              {currentPayments.map((payment) => (
-                <div 
-                  key={payment.id} 
-                  className="grid grid-cols-12 p-4 border-b border-gray-100/50 hover:bg-gray-50/30 transition-colors items-center"
-                >
-                  <div className="col-span-3">
-                    <div className="font-medium text-gray-900">{payment.project}</div>
-                    <div className="text-xs text-[#dd7109] mt-1">{payment.title}</div>
-                  </div>
-                  <div className="col-span-2 font-medium text-gray-900">
-                    {payment.amount.toLocaleString()} €
-                  </div>
-                  <div className="col-span-2 flex items-center gap-2">
-                    {getMethodIcon("virement bancaire")}
-                    <span className="text-gray-700">Virement bancaire</span>
-                  </div>
-                  <div className="col-span-2">
-                    <div className="flex items-center gap-2">
-                      {getStatusIcon(payment.status)}
-                      <span className={`text-sm font-medium ${
-                        payment.status === "validé" ? "text-emerald-600" :
-                        payment.status === "en_attente" ? "text-amber-600" :
-                        "text-red-600"
-                      }`}>
-                        {payment.status}
-                      </span>
-                      {payment.status === "Rejeté" && (
-                        <span className="text-xs text-red-500">({payment.rejectionReason})</span>
-                      )}
-                    </div>
-                  </div>
-                  <div className="col-span-1 flex justify-end">
-                    <DropdownMenu.Root>
-                      <DropdownMenu.Trigger asChild>
-                        <button className="p-2 rounded-full hover:bg-[#dd7109]/10 transition-colors" aria-label="Menu paiement">
-                          <svg width="20" height="20" fill="none" viewBox="0 0 20 20"><circle cx="4" cy="10" r="1.5" fill="#dd7109"/><circle cx="10" cy="10" r="1.5" fill="#dd7109"/><circle cx="16" cy="10" r="1.5" fill="#dd7109"/></svg>
-                        </button>
-                      </DropdownMenu.Trigger>
-                      <DropdownMenu.Content align="end" className="z-50 min-w-[150px] rounded-xl bg-white shadow-xl border border-gray-100 py-2">
-                        <DropdownMenu.Item asChild>
-                          <button
-                            className="w-full text-left px-4 py-2 hover:bg-gray-50 text-gray-900 text-sm"
-                            onClick={() => {
-                              setSelectedPayment(payment);
-                              setShowDetailsModal(true);
-                            }}
-                          >
-                            Voir les détails
-                          </button>
-                        </DropdownMenu.Item>
-                        {payment.status === "en_attente" && (
-                          <DropdownMenu.Item asChild>
-                            <button
-                              className="w-full text-left px-4 py-2 hover:bg-gray-50 text-[#dd7109] text-sm"
-                              onClick={() => {
-                                setSelectedPayment(payment);
-                                setShowPaymentModal(true);
-                              }}
-                            >
-                              Payer
-                            </button>
-                          </DropdownMenu.Item>
-                        )}
-                      </DropdownMenu.Content>
-                    </DropdownMenu.Root>
-                  </div>
-                </div>
-              ))}
+  <>
+    <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm border border-gray-100/50 overflow-x-auto mb-4">
+      {/* Table header for md+ */}
+      <div className="hidden sm:grid grid-cols-12 bg-gray-50/50 p-4 border-b border-gray-100/50 min-w-[700px]">
+        <div className="col-span-3 font-medium text-sm text-gray-500">Projet</div>
+        <div className="col-span-2 font-medium text-sm text-gray-500">Montant</div>
+        <div className="col-span-2 font-medium text-sm text-gray-500">Méthode</div>
+        <div className="col-span-2 font-medium text-sm text-gray-500">Statut</div>
+        <div className="col-span-1"></div>
+      </div>
+      {currentPayments.map((payment) => (
+        <div
+          key={payment.id}
+          className="grid grid-cols-1 sm:grid-cols-12 gap-y-2 sm:gap-0 p-4 border-b border-gray-100/50 hover:bg-gray-50/30 transition-colors items-center min-w-[700px]"
+        >
+          {/* Projet */}
+          <div className="sm:col-span-3">
+            <div className="font-medium text-gray-900">{payment.project}</div>
+            <div className="text-xs text-[#dd7109] mt-1">{payment.title}</div>
+          </div>
+          {/* Montant */}
+          <div className="sm:col-span-2">
+            <span className="block sm:hidden text-xs text-gray-500 mb-0.5">Montant</span>
+            <span className="font-medium text-gray-900">{payment.amount.toLocaleString()} €</span>
+          </div>
+          {/* Méthode */}
+          <div className="sm:col-span-2 flex items-center gap-2">
+            <span className="block sm:hidden text-xs text-gray-500 mb-0.5">Méthode</span>
+            {getMethodIcon("virement bancaire")}
+            <span className="text-gray-700">Virement bancaire</span>
+          </div>
+          {/* Statut */}
+          <div className="sm:col-span-2">
+            <span className="block sm:hidden text-xs text-gray-500 mb-0.5">Statut</span>
+            <div className="flex items-center gap-2">
+              {getStatusIcon(payment.status)}
+              <span className={`text-sm font-medium ${
+                payment.status === "validé" ? "text-emerald-600" :
+                payment.status === "en_attente" ? "text-amber-600" :
+                "text-red-600"
+              }`}>
+                {payment.status}
+              </span>
+              {payment.status === "Rejeté" && (
+                <span className="text-xs text-red-500">({payment.rejectionReason})</span>
+              )}
             </div>
+          </div>
+          {/* Menu */}
+          <div className="sm:col-span-1 flex justify-end">
+            <DropdownMenu.Root>
+              <DropdownMenu.Trigger asChild>
+                <button className="p-2 rounded-full hover:bg-[#dd7109]/10 transition-colors" aria-label="Menu paiement">
+                  <svg width="20" height="20" fill="none" viewBox="0 0 20 20"><circle cx="4" cy="10" r="1.5" fill="#dd7109"/><circle cx="10" cy="10" r="1.5" fill="#dd7109"/><circle cx="16" cy="10" r="1.5" fill="#dd7109"/></svg>
+                </button>
+              </DropdownMenu.Trigger>
+              <DropdownMenu.Content align="end" className="z-50 min-w-[150px] rounded-xl bg-white shadow-xl border border-gray-100 py-2">
+                <DropdownMenu.Item asChild>
+                  <button
+                    className="w-full text-left px-4 py-2 hover:bg-gray-50 text-gray-900 text-sm"
+                    onClick={() => {
+                      setSelectedPayment(payment);
+                      setShowDetailsModal(true);
+                    }}
+                  >
+                    Voir les détails
+                  </button>
+                </DropdownMenu.Item>
+                {payment.status === "en_attente" && (
+                  <DropdownMenu.Item asChild>
+                    <button
+                      className="w-full text-left px-4 py-2 hover:bg-gray-50 text-[#dd7109] text-sm"
+                      onClick={() => {
+                        setSelectedPayment(payment);
+                        setShowPaymentModal(true);
+                      }}
+                    >
+                      Payer
+                    </button>
+                  </DropdownMenu.Item>
+                )}
+              </DropdownMenu.Content>
+            </DropdownMenu.Root>
+          </div>
+        </div>
+      ))}
+    </div>
 
             {/* Pagination */}
             <div className="flex justify-between items-center bg-white/80 backdrop-blur-sm rounded-xl p-4 border border-gray-100/50">

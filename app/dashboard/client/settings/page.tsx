@@ -84,34 +84,34 @@ export default function Settings() {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 px-2 sm:px-0">
       {/* Header */}
-      <div className="bg-white rounded-xl p-6 border border-gray-100">
-        <h2 className="text-2xl font-semibold text-gray-900">Paramètres</h2>
-        <p className="text-gray-500 mt-1">Gérez votre compte et vos préférences</p>
+      <div className="bg-white rounded-xl p-4 sm:p-6 border border-gray-100 text-center sm:text-left">
+        <h2 className="text-xl sm:text-2xl font-semibold text-gray-900">Paramètres</h2>
+        <p className="text-gray-500 mt-1 text-sm">Gérez votre compte et vos préférences</p>
       </div>
 
       {/* Profile Overview dynamique */}
-      <div className="bg-white rounded-xl p-6 border border-gray-100">
+      <div className="bg-white rounded-xl p-4 sm:p-6 border border-gray-100">
         {loading && <div className="text-gray-500">Chargement…</div>}
         {error && <div className="text-red-500">{error}</div>}
         {profile && (
-          <div className="flex items-start gap-6">
-            <div className="w-20 h-20 rounded-xl bg-gradient-to-br from-[#dd7109] to-[#ff9f4d] flex items-center justify-center flex-shrink-0">
-              <span className="text-2xl font-semibold text-white">
+          <div className="flex flex-col sm:flex-row items-start gap-4 sm:gap-6">
+            <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl bg-gradient-to-br from-[#dd7109] to-[#ff9f4d] flex items-center justify-center flex-shrink-0 mb-3 sm:mb-0">
+              <span className="text-xl sm:text-2xl font-semibold text-white">
                 {(profile.firstName?.[0]||'')}{(profile.lastName?.[0]||'')}
               </span>
             </div>
 
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center justify-between mb-4">
+            <div className="flex-1 min-w-0 w-full">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 gap-2">
                 <div>
-                  <h3 className="text-xl font-semibold text-gray-900">
+                  <h3 className="text-lg sm:text-xl font-semibold text-gray-900">
                     {profile.firstName} {profile.lastName}
                   </h3>
-                  <p className="text-gray-500">{profile.role}</p>
+                  <p className="text-gray-500 text-sm">{profile.role}</p>
                 </div>
-                <button className="px-4 py-2 bg-[#dd7109] text-white rounded-lg hover:bg-[#dd7109]/90 transition-colors" onClick={() => {
+                <button className="w-full sm:w-auto px-4 py-2 bg-[#dd7109] text-white rounded-lg hover:bg-[#dd7109]/90 transition-colors mt-2 sm:mt-0" onClick={() => {
                   setForm({
                     firstName: profile.firstName,
                     lastName: profile.lastName,
@@ -171,30 +171,36 @@ export default function Settings() {
         )}
         {/* Formulaires d'édition inline (simples) */}
         {editProfile && (
-          <div className="mt-4 p-4 bg-gray-50 rounded-xl">
-            <div className="mb-2">Modifier le profil</div>
-            <input className="border rounded p-2 mb-2 w-full" placeholder="Prénom" value={form.firstName||''} onChange={e=>setForm((f: any)=>({...f,firstName:e.target.value}))}/>
-            <input className="border rounded p-2 mb-2 w-full" placeholder="Nom" value={form.lastName||''} onChange={e=>setForm((f: any)=>({...f,lastName:e.target.value}))}/>
-            <input className="border rounded p-2 mb-2 w-full" placeholder="Téléphone" value={form.phone||''} onChange={e=>setForm((f: any)=>({...f,phone:e.target.value}))}/>
-            <input className="border rounded p-2 mb-2 w-full" placeholder="Entreprise" value={form.company||''} onChange={e=>setForm((f: any)=>({...f,company:e.target.value}))}/> 
-            <button className="bg-[#dd7109] text-white px-4 py-2 rounded mr-2" onClick={handleProfileSave}>Enregistrer</button>
-            <button className="text-gray-500" onClick={()=>setEditProfile(false)}>Annuler</button>
+          <div className="mt-4 p-3 sm:p-4 bg-gray-50 rounded-xl flex flex-col gap-2">
+            <div className="mb-2 text-sm font-medium">Modifier le profil</div>
+            <input className="border rounded p-2 w-full text-sm" placeholder="Prénom" value={form.firstName||''} onChange={e=>setForm((f: any)=>({...f,firstName:e.target.value}))}/>
+            <input className="border rounded p-2 w-full text-sm" placeholder="Nom" value={form.lastName||''} onChange={e=>setForm((f: any)=>({...f,lastName:e.target.value}))}/>
+            <input className="border rounded p-2 w-full text-sm" placeholder="Téléphone" value={form.phone||''} onChange={e=>setForm((f: any)=>({...f,phone:e.target.value}))}/>
+            <input className="border rounded p-2 w-full text-sm" placeholder="Entreprise" value={form.company||''} onChange={e=>setForm((f: any)=>({...f,company:e.target.value}))}/> 
+            <div className="flex flex-col sm:flex-row gap-2 mt-2">
+              <button className="w-full sm:w-auto bg-[#dd7109] text-white px-4 py-2 rounded" onClick={handleProfileSave}>Enregistrer</button>
+              <button className="w-full sm:w-auto text-gray-500 px-4 py-2 rounded border" onClick={()=>setEditProfile(false)}>Annuler</button>
+            </div>
           </div>
         )}
         {editEmail && (
-          <div className="mt-4 p-4 bg-gray-50 rounded-xl">
-            <div className="mb-2">Modifier l'email</div>
-            <input className="border rounded p-2 mb-2 w-full" placeholder="Nouvel email" value={form.email||''} onChange={e=>setForm((f: any)=>({...f,email:e.target.value}))}/> 
-            <button className="bg-[#dd7109] text-white px-4 py-2 rounded mr-2" onClick={handleEmailSave}>Enregistrer</button>
-            <button className="text-gray-500" onClick={()=>setEditEmail(false)}>Annuler</button>
+          <div className="mt-4 p-3 sm:p-4 bg-gray-50 rounded-xl flex flex-col gap-2">
+            <div className="mb-2 text-sm font-medium">Modifier l'email</div>
+            <input className="border rounded p-2 w-full text-sm" placeholder="Nouvel email" value={form.email||''} onChange={e=>setForm((f: any)=>({...f,email:e.target.value}))}/> 
+            <div className="flex flex-col sm:flex-row gap-2 mt-2">
+              <button className="w-full sm:w-auto bg-[#dd7109] text-white px-4 py-2 rounded" onClick={handleEmailSave}>Enregistrer</button>
+              <button className="w-full sm:w-auto text-gray-500 px-4 py-2 rounded border" onClick={()=>setEditEmail(false)}>Annuler</button>
+            </div>
           </div>
         )}
         {editPassword && (
-          <div className="mt-4 p-4 bg-gray-50 rounded-xl">
-            <div className="mb-2">Modifier le mot de passe</div>
-            <input className="border rounded p-2 mb-2 w-full" placeholder="Nouveau mot de passe" type="password" value={form.password||''} onChange={e=>setForm((f: any)=>({...f,password:e.target.value}))}/> 
-            <button className="bg-[#dd7109] text-white px-4 py-2 rounded mr-2" onClick={handlePasswordSave}>Enregistrer</button>
-            <button className="text-gray-500" onClick={()=>setEditPassword(false)}>Annuler</button>
+          <div className="mt-4 p-3 sm:p-4 bg-gray-50 rounded-xl flex flex-col gap-2">
+            <div className="mb-2 text-sm font-medium">Modifier le mot de passe</div>
+            <input className="border rounded p-2 w-full text-sm" placeholder="Nouveau mot de passe" type="password" value={form.password||''} onChange={e=>setForm((f: any)=>({...f,password:e.target.value}))}/> 
+            <div className="flex flex-col sm:flex-row gap-2 mt-2">
+              <button className="w-full sm:w-auto bg-[#dd7109] text-white px-4 py-2 rounded" onClick={handlePasswordSave}>Enregistrer</button>
+              <button className="w-full sm:w-auto text-gray-500 px-4 py-2 rounded border" onClick={()=>setEditPassword(false)}>Annuler</button>
+            </div>
           </div>
         )}
       </div>
