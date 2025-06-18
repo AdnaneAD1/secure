@@ -4,13 +4,14 @@ import { useState, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { useAuth } from "@/hooks/auth";
 import { useSettings } from "@/hooks/settings";
-import { 
-  Wallet, 
-  LayoutDashboard, 
-  CreditCard, 
-  FileText, 
-  Settings, 
-  Bell, 
+import Image from "next/image";
+import {
+  Wallet,
+  LayoutDashboard,
+  CreditCard,
+  FileText,
+  Settings,
+  Bell,
   LogOut,
   ChevronDown,
   Search,
@@ -30,7 +31,7 @@ export default function ClientDashboardLayout({
   // TOUS les hooks doivent être déclarés ici, AVANT tout if/return !
   const { user, loading } = useAuth();
   const { profile, fetchProfile } = useSettings(user?.uid ?? "");
-  
+
   useEffect(() => {
     if (user?.uid) fetchProfile();
   }, [user?.uid, fetchProfile]);
@@ -122,11 +123,10 @@ export default function ClientDashboardLayout({
                   <li key={item.href}>
                     <Link
                       href={item.href}
-                      className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 group ${
-                        isActive 
-                          ? 'bg-[#dd7109] text-white' 
+                      className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 group ${isActive
+                          ? 'bg-[#dd7109] text-white'
                           : 'text-gray-400 hover:bg-white/5 hover:text-white'
-                      }`}
+                        }`}
                     >
                       <item.icon className={`w-5 h-5 ${isActive ? 'text-white' : 'text-gray-400 group-hover:text-white'}`} />
                       <span>{item.label}</span>
@@ -143,9 +143,17 @@ export default function ClientDashboardLayout({
               onClick={() => setShowUserMenu(!showUserMenu)}
               className="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-white/5 transition-all duration-200 relative group"
             >
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#dd7109] to-[#ff9f4d] flex items-center justify-center">
-                <span className="font-semibold text-white">{profile?.firstName?.[0]||''}{profile?.lastName?.[0]||''}</span>
-              </div>
+              {profile?.photoURL ? (
+                <Image
+                  src={profile.photoURL}
+                  alt="avatar"
+                  width={70}
+                  height={70}
+                  className="w-[70px] h-[70px] rounded-full object-cover border-2 border-orange-200"
+                />
+              ) : (<div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#dd7109] to-[#ff9f4d] flex items-center justify-center">
+                <span className="font-semibold text-white">{profile?.firstName?.[0] || ''}{profile?.lastName?.[0] || ''}</span>
+              </div>)}
               <div className="flex-1 text-left">
                 <p className="font-medium text-white">{profile ? `${profile.firstName || ''} ${profile.lastName || ''}`.trim() : user?.email}</p>
                 <p className="text-sm text-gray-400">Client</p>
@@ -185,7 +193,7 @@ export default function ClientDashboardLayout({
                   <Menu className="w-5 h-5 text-gray-600" />
                 )}
               </button>
-              
+
               {/* Search - Hidden on mobile */}
               <div className="relative hidden md:block">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -207,7 +215,7 @@ export default function ClientDashboardLayout({
               <button className="hidden md:flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-gray-100 transition-colors">
                 <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#dd7109] to-[#ff9f4d] flex items-center justify-center">
                   <User className="w-4 h-4 text-white" />
-              </div>
+                </div>
                 <span className="text-sm font-medium text-gray-900">
                   {profile ? `${profile.firstName || ''} ${profile.lastName || ''}`.trim() : user?.email}
                 </span>
@@ -232,9 +240,8 @@ export default function ClientDashboardLayout({
               <Link
                 key={item.href}
                 href={item.href}
-                className={`flex flex-col items-center justify-center w-full h-full transition-colors ${
-                  isActive ? 'text-[#dd7109]' : 'text-gray-400'
-                }`}
+                className={`flex flex-col items-center justify-center w-full h-full transition-colors ${isActive ? 'text-[#dd7109]' : 'text-gray-400'
+                  }`}
                 onClick={() => setShowSidebar(false)}
               >
                 <item.icon className="w-5 h-5" />
@@ -244,9 +251,8 @@ export default function ClientDashboardLayout({
           })}
           <button
             onClick={() => setShowBottomMenu(!showBottomMenu)}
-            className={`flex flex-col items-center justify-center w-full h-full transition-colors ${
-              showBottomMenu ? 'text-[#dd7109]' : 'text-gray-400'
-            }`}
+            className={`flex flex-col items-center justify-center w-full h-full transition-colors ${showBottomMenu ? 'text-[#dd7109]' : 'text-gray-400'
+              }`}
           >
             <Menu className="w-5 h-5" />
             <span className="text-xs mt-1">Plus</span>
@@ -258,23 +264,23 @@ export default function ClientDashboardLayout({
       {showBottomMenu && (
         <div className="lg:hidden fixed inset-0 z-40">
           {/* Overlay */}
-          <div 
+          <div
             className="absolute inset-0 bg-black/50"
             onClick={() => setShowBottomMenu(false)}
           />
-          
+
           {/* Menu Content */}
           <div className="absolute bottom-16 left-0 right-0 bg-[#1a1a1a] rounded-t-2xl overflow-hidden transform transition-transform duration-300 ease-out">
             <div className="p-4 border-b border-white/10 flex justify-between items-center">
               <h3 className="font-medium text-white">Menu</h3>
-              <button 
+              <button
                 onClick={() => setShowBottomMenu(false)}
                 className="p-1 rounded-full hover:bg-white/10"
               >
                 <X className="w-5 h-5 text-white" />
               </button>
             </div>
-            
+
             <div className="p-2">
               {/* Show remaining nav items */}
               {navItems.slice(4).map((item) => {
@@ -283,9 +289,8 @@ export default function ClientDashboardLayout({
                   <Link
                     key={item.href}
                     href={item.href}
-                    className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-                      isActive ? 'bg-[#dd7109] text-white' : 'text-gray-400 hover:bg-white/5 hover:text-white'
-                    }`}
+                    className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${isActive ? 'bg-[#dd7109] text-white' : 'text-gray-400 hover:bg-white/5 hover:text-white'
+                      }`}
                     onClick={() => setShowBottomMenu(false)}
                   >
                     <item.icon className="w-5 h-5" />
@@ -293,7 +298,7 @@ export default function ClientDashboardLayout({
                   </Link>
                 );
               })}
-              
+
               <button
                 onClick={handleLogout}
                 className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-white/5 transition-colors text-red-500 mt-2"
@@ -308,7 +313,7 @@ export default function ClientDashboardLayout({
 
       {/* Sidebar Overlay */}
       {showSidebar && (
-        <div 
+        <div
           className="fixed inset-0 bg-black/50 z-30 lg:hidden"
           onClick={() => setShowSidebar(false)}
         />

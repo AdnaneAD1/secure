@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/auth";
 import { Wallet, Mail, Lock, ArrowRight } from "lucide-react";
+import ImportCourtiersButton from "./ImportCourtiersButton";
 import Link from "next/link";
 import Image from "next/image";
 
@@ -12,7 +13,14 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
 
-  const { login, error, loading, user } = useAuth();
+  const { login, error, loading, user, forgotPassword } = useAuth();
+
+  // État pour mot de passe oublié
+  const [showForgot, setShowForgot] = useState(false);
+  const [forgotEmail, setForgotEmail] = useState("");
+  const [forgotLoading, setForgotLoading] = useState(false);
+  const [forgotSuccess, setForgotSuccess] = useState<string | null>(null);
+  const [forgotError, setForgotError] = useState<string | null>(null);
 
   // Traduit les erreurs Firebase en messages utilisateur
   function getFriendlyErrorMessage(error: string | null) {
@@ -57,11 +65,11 @@ export default function LoginPage() {
           </div>
 
           {error && (
-  <div className="bg-red-100 text-red-700 px-4 py-2 rounded mb-4 text-sm">
-    {getFriendlyErrorMessage(error)}
-  </div>
-)}
-<form onSubmit={handleSubmit} className="space-y-6">
+            <div className="bg-red-100 text-red-700 px-4 py-2 rounded mb-4 text-sm">
+              {getFriendlyErrorMessage(error)}
+            </div>
+          )}
+          <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-4">
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -101,12 +109,18 @@ export default function LoginPage() {
                 </span>
               </label>
 
-              <Link
-                href="/auth/forgot-password"
-                className="text-[#dd7109] hover:text-[#dd7109]/90 transition-colors"
+              <button
+                type="button"
+                className="text-[#dd7109] hover:text-[#dd7109]/90 transition-colors underline focus:outline-none"
+                onClick={() => {
+                  setShowForgot(v => !v);
+                  setForgotSuccess(null);
+                  setForgotError(null);
+                  setForgotEmail(email);
+                }}
               >
-                Mot de passe oublié?
-              </Link>
+                Mot de passe oublié ?
+              </button>
             </div>
 
             <button
@@ -130,6 +144,61 @@ export default function LoginPage() {
               )}
             </button>
           </form>
+          {/* <ImportCourtiersButton /> */}
+
+          {/* Bloc mot de passe oublié */}
+          {showForgot && (
+            <div className="bg-white/10 border border-white/20 rounded-lg p-6 mt-4 animate-fade-in">
+              <h3 className="text-lg font-semibold text-white mb-2">Réinitialiser le mot de passe</h3>
+              <p className="text-gray-400 text-sm mb-4">Saisis ton adresse email pour recevoir un lien de réinitialisation.</p>
+              <form
+                onSubmit={async (e) => {
+                  e.preventDefault();
+                  setForgotLoading(true);
+                  setForgotSuccess(null);
+                  setForgotError(null);
+                  try {
+                    await forgotPassword(forgotEmail);
+                    setForgotSuccess("Un email de réinitialisation a été envoyé si l'adresse existe dans notre base.");
+                  } catch (err: any) {
+                    setForgotError("Erreur lors de l'envoi de l'email : " + (err.message || err));
+                  } finally {
+                    setForgotLoading(false);
+                  }
+                }}
+                className="space-y-4"
+              >
+                <input
+                  type="email"
+                  value={forgotEmail}
+                  onChange={e => setForgotEmail(e.target.value)}
+                  placeholder="Ton adresse email"
+                  className="w-full bg-white/5 border border-white/10 rounded-lg py-3 px-5 text-white placeholder:text-gray-400 focus:outline-none focus:border-[#dd7109] transition-colors"
+                  required
+                  disabled={forgotLoading}
+                />
+                <button
+                  type="submit"
+                  className="w-full bg-[#dd7109] text-white font-semibold py-3 px-6 rounded-lg hover:bg-[#dd7109]/90 transition-colors flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
+                  disabled={forgotLoading}
+                >
+                  {forgotLoading ? (
+                    <>
+                      <svg className="animate-spin w-5 h-5 mr-2 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                      </svg>
+                      Envoi en cours…
+                    </>
+                  ) : (
+                    <>Recevoir le lien</>
+                  )}
+                </button>
+                {forgotSuccess && <div className="text-green-400 text-sm mt-2">{forgotSuccess}</div>}
+                {forgotError && <div className="text-red-400 text-sm mt-2">{forgotError}</div>}
+              </form>
+            </div>
+          )}
         </div>
       </div>
 

@@ -34,7 +34,7 @@ export default function PaymentModal({ open, onClose, payment }: PaymentModalPro
         >
           ×
         </button>
-        <h3 className="text-lg font-semibold mb-2">Payer l'acompte</h3>
+        <h3 className="text-lg font-semibold mb-2">Payer l&apos;acompte</h3>
         <div className="mb-4">
           <div className="text-base font-medium text-gray-900 mb-1">{payment.title}</div>
           <div className="text-sm text-gray-500 mb-1">{payment.date}</div>
@@ -45,7 +45,7 @@ export default function PaymentModal({ open, onClose, payment }: PaymentModalPro
           <div>
             <label className="block text-sm font-medium mb-2">Instructions de paiement</label>
             <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 text-gray-700 text-sm">
-              Merci d'effectuer un virement bancaire du montant indiqué sur le compte suivant&nbsp;:<br /><br />
+              Merci d&apos;effectuer un virement bancaire du montant indiqué sur le compte suivant&nbsp;:<br /><br />
               <span className="font-semibold">Titulaire&nbsp;:</span> {HOLDER}<br />
               <span className="font-semibold">IBAN&nbsp;:</span> <span className="select-all" style={{letterSpacing: '1px'}}>{IBAN}</span>
               <button
@@ -58,7 +58,7 @@ export default function PaymentModal({ open, onClose, payment }: PaymentModalPro
               <br />
               <span className="font-semibold">BIC&nbsp;:</span> {BIC}<br />
               <span className="font-semibold">Banque&nbsp;:</span> {BANK}<br /><br />
-              Merci d'indiquer le nom du projet ou la référence de la facture dans le motif du virement.<br />
+              Merci d&apos;indiquer le nom du projet ou la référence de la facture dans le motif du virement.<br />
               <span className="italic text-xs text-gray-500">Une fois le virement reçu, votre paiement sera validé sous 1 à 2 jours ouvrés.</span>
             </div>
           </div>

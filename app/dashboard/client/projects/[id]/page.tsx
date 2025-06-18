@@ -37,7 +37,7 @@ export default function ProjectDetailsPage({ params }: { params: { id: string } 
     } else {
       setClientProfile(null);
     }
-  }, [project?.client_id]);
+  }, [project?.client_id, project]);
 
   useEffect(() => {
     if (project && project.id) {
@@ -49,7 +49,7 @@ export default function ProjectDetailsPage({ params }: { params: { id: string } 
     } else {
       setDevis([]);
     }
-  }, [project?.id]);
+  }, [project?.id, project]);
 
   // const [injecting, setInjecting] = useState<{events: boolean, media: boolean, plans: boolean, documents: boolean, payments: boolean}>({events: false, media: false, plans: false, documents: false, payments: false});
   // const [injectMsg, setInjectMsg] = useState<string>("");
@@ -262,13 +262,17 @@ export default function ProjectDetailsPage({ params }: { params: { id: string } 
           {clientProfile ? (
             <>
               <div className="flex items-center gap-2 mb-2">
-                <Image
-                  src={clientProfile.photoURL || "https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg"}
+                {clientProfile.photoURL ? <Image
+                  src={clientProfile.photoURL}
                   alt="avatar"
                   width={70}
                   height={70}
                   className="w-[70px] h-[70px] rounded-full object-cover border-2 border-orange-200"
-                />
+                /> : <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-br from-[#dd7109] to-[#ff9f4d] flex items-center justify-center flex-shrink-0 mb-3 sm:mb-0">
+                  <span className="text-xl sm:text-2xl font-semibold text-white">
+                    {(clientProfile.firstName?.[0] || '')}{(clientProfile.lastName?.[0] || '')}
+                  </span>
+                </div>}
                 <div>
                   <div className="font-medium text-gray-800 text-sm">{clientProfile.firstName} {clientProfile.lastName}</div>
                   <div className="text-xs text-gray-500">{clientProfile.company}</div>
@@ -276,7 +280,7 @@ export default function ProjectDetailsPage({ params }: { params: { id: string } 
               </div>
               <div className="flex items-center gap-2 text-[#dd7109] text-xs mb-1"><Phone className="w-4 h-4" /> {clientProfile.phone || "N/A"}</div>
               <div className="flex items-center gap-2 text-[#dd7109] text-xs mb-1"><Mail className="w-4 h-4" /> {clientProfile.email}</div>
-              <div className="flex items-center gap-2 text-[#dd7109] text-xs"><MapPin className="w-4 h-4" /> {clientProfile.address || "Adresse non renseignée"}</div>
+              <div className="flex items-center gap-2 text-[#dd7109] text-xs"><MapPin className="w-4 h-4" /> {project.location || "Adresse non renseignée"}</div>
             </>
           ) : (
             <div className="text-xs text-gray-400">Profil utilisateur non trouvé.</div>
@@ -292,8 +296,7 @@ export default function ProjectDetailsPage({ params }: { params: { id: string } 
           </div>
           <div className="flex items-center gap-2 mb-2">
             <Users className="w-4 h-4 text-gray-400" />
-            <span className="text-sm text-gray-700">Client</span>
-            <span className="ml-2 text-xs text-gray-500">John Misu</span>
+
           </div>
         </div>
       </div>

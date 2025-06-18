@@ -7,6 +7,8 @@ import {
   orderBy,
   getDocs,
   addDoc,
+  updateDoc,
+  doc
 } from "firebase/firestore";
 
 export type PaymentStatus = "validé" | "en_attente";
@@ -19,7 +21,28 @@ export interface ProjectPayment {
   status: PaymentStatus;
   amount: number;
   images: string[];
+  project?: string;
+  dateValidation: string;
+  localisation?: string; // <- Ajout localisation du projet
+  // Infos client
+  client?: {
+    id: string;
+    firstName?: string;
+    lastName?: string;
+    address?: string;
+    email?: string;
+    phone?: string;
+    [key: string]: any;
+  };
+  // Infos courtier
+  courtier?: {
+    id: string;
+    name?: string;
+    company?: string;
+    [key: string]: any;
+  };
 }
+
 
 export async function injectMockPayments(projectId: string) {
   const mockPayments = [
@@ -36,6 +59,7 @@ export async function injectMockPayments(projectId: string) {
         "/photos/photo3.jpg",
         "/photos/plan1.jpg"
       ],
+      dateValidation: "2025-02-10",
     },
     {
       projectId,
@@ -48,6 +72,7 @@ export async function injectMockPayments(projectId: string) {
         "/photos/photo4.jpg",
         "/photos/photo1.jpg"
       ],
+      dateValidation: "2025-02-20",
     },
     {
       projectId,
@@ -59,6 +84,7 @@ export async function injectMockPayments(projectId: string) {
       images: [
         "/photos/photo2.jpg"
       ],
+      dateValidation: "2025-03-15",
     },
   ];
   for (const payment of mockPayments) {
@@ -67,6 +93,8 @@ export async function injectMockPayments(projectId: string) {
 }
 
 // Récupère tous les acomptes liés aux projets du client connecté
+import { getUserProfileById } from "@/hooks/project";
+
 export async function getAllClientPayments(userId: string): Promise<ProjectPayment[]> {
   const { getFirestore, collection, getDocs, query, where } = await import("firebase/firestore");
   const db = getFirestore();
@@ -90,11 +118,65 @@ export async function getAllClientPayments(userId: string): Promise<ProjectPayme
     .filter((p: any) => projectIds.includes(p.projectId))
     .map((p: any) => ({
       ...p,
-      project: projectNameMap[p.projectId] || "Projet inconnu"
+      project: projectNameMap[p.projectId] || "Projet inconnu",
+      _project: projectList.find(proj => proj.id === p.projectId) // on garde le projet pour enrichir ensuite
     }));
   // 4. Supprimer les doublons potentiels (par id)
   const uniquePayments = Array.from(new Map(allPayments.map(p => [p.id, p])).values());
-  return uniquePayments as ProjectPayment[];
+
+  // 5. Enrichir chaque paiement avec infos client et courtier
+  const enrichedPayments: ProjectPayment[] = [];
+  for (const p of uniquePayments) {
+    const project = p._project || {};
+    let clientProfile = null;
+    let courtierProfile = null;
+    try {
+      if (project.client_id) {
+        clientProfile = await getUserProfileById(project.client_id);
+      }
+      // courtier : on prend directement les infos du projet
+      let broker = project.broker;
+      if (broker && typeof broker === "object") {
+        courtierProfile = broker;
+      } else if (broker && typeof broker === "string") {
+        // Si jamais broker est juste un id (rare), on met l'id uniquement
+        courtierProfile = { id: broker };
+      }
+    } catch(e) {
+      // ignore erreurs, continue
+    }
+    enrichedPayments.push({
+      ...p,
+      localisation: project.location || undefined,
+      client: clientProfile ? {
+        id: project.client_id,
+        firstName: clientProfile.firstName || clientProfile.prenom,
+        lastName: clientProfile.lastName || clientProfile.nom,
+        address: clientProfile.address || clientProfile.adresse,
+        email: clientProfile.email,
+        phone: clientProfile.phone || clientProfile.telephone,
+        ...clientProfile
+      } : undefined,
+      courtier: courtierProfile ? {
+        id: project.broker?.id || project.broker,
+        name: courtierProfile.name || courtierProfile.prenom,
+        company: courtierProfile.company || courtierProfile.nom,
+        ...courtierProfile
+      } : undefined
+    });
+  }
+  return enrichedPayments;
+}
+
+// Met à jour le montant payé d'un projet
+export async function updateProjectPaidAmount(projectId: string, paidAmount: number) {
+  try {
+    await updateDoc(doc(db, "projects", projectId), { paidAmount });
+    return true;
+  } catch (err) {
+    console.error("Erreur lors de la mise à jour du paidAmount:", err);
+    return false;
+  }
 }
 
 export function usePayments(projectId: string) {

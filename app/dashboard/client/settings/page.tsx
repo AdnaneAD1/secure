@@ -4,9 +4,11 @@ import { useState, useEffect, useCallback } from "react";
 import { User, Building, Mail, Phone, Lock, Bell, CreditCard, Shield, ChevronRight } from "lucide-react";
 import { useSettings } from "@/hooks/settings";
 import { useAuth } from "@/hooks/auth";
+import Image from "next/image";
 
 export default function Settings() {
-  const { user } = useAuth(); // On suppose que le hook d'auth expose l'utilisateur connecté
+  const { user } = useAuth(); // On suppose que le hook d'auth expose l'd'utilisateur connecté
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const {
     profile,
     loading,
@@ -31,7 +33,7 @@ export default function Settings() {
 
   useEffect(() => {
     if (user?.uid) fetchProfile();
-  }, [user?.uid]);
+  }, [user?.uid, fetchProfile]);
 
   const handleProfileSave = async () => {
     await updateProfile(form);
@@ -97,10 +99,58 @@ export default function Settings() {
         {error && <div className="text-red-500">{error}</div>}
         {profile && (
           <div className="flex flex-col sm:flex-row items-start gap-4 sm:gap-6">
-            <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl bg-gradient-to-br from-[#dd7109] to-[#ff9f4d] flex items-center justify-center flex-shrink-0 mb-3 sm:mb-0">
-              <span className="text-xl sm:text-2xl font-semibold text-white">
-                {(profile.firstName?.[0]||'')}{(profile.lastName?.[0]||'')}
-              </span>
+            <div className="relative group">
+              {/* Spinner overlay pendant l'upload */}
+              {uploadingPhoto && (
+                <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/40 rounded-full">
+                  <svg className="animate-spin h-8 w-8 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
+                  </svg>
+                </div>
+              )}
+              {profile.photoURL ? (
+                <Image
+                  src={profile.photoURL}
+                  alt="avatar"
+                  width={70}
+                  height={70}
+                  className="w-[70px] h-[70px] rounded-full object-cover border-2 border-orange-200"
+                />
+              ) : (
+                <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl bg-gradient-to-br from-[#dd7109] to-[#ff9f4d] flex items-center justify-center flex-shrink-0 mb-3 sm:mb-0">
+                  <span className="text-xl sm:text-2xl font-semibold text-white">
+                    {(profile.firstName?.[0]||'')}{(profile.lastName?.[0]||'')}
+                  </span>
+                </div>
+              )}
+              <label htmlFor="profile-photo-upload" className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 flex items-center justify-center rounded-full cursor-pointer transition-opacity">
+                <span className="text-xs text-white bg-[#dd7109] px-2 py-1 rounded shadow">Changer</span>
+                <input
+                  id="profile-photo-upload"
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+                    if (!file.type.startsWith("image/")) {
+                      alert("Veuillez sélectionner une image uniquement.");
+                      return;
+                    }
+                    setUploadingPhoto(true);
+                    try {
+                      const { uploadImageToCloudinary } = await import("@/hooks/cloudinary");
+                      const url = await uploadImageToCloudinary(file);
+                      await updateProfile({ ...profile, photoURL: url });
+                    } catch (err) {
+                      alert("Erreur lors de l'upload de la photo de profil");
+                    } finally {
+                      setUploadingPhoto(false);
+                    }
+                  }}
+                />
+              </label>
             </div>
 
             <div className="flex-1 min-w-0 w-full">
@@ -185,7 +235,7 @@ export default function Settings() {
         )}
         {editEmail && (
           <div className="mt-4 p-3 sm:p-4 bg-gray-50 rounded-xl flex flex-col gap-2">
-            <div className="mb-2 text-sm font-medium">Modifier l'email</div>
+            <div className="mb-2 text-sm font-medium">Modifier l&apos;email</div>
             <input className="border rounded p-2 w-full text-sm" placeholder="Nouvel email" value={form.email||''} onChange={e=>setForm((f: any)=>({...f,email:e.target.value}))}/> 
             <div className="flex flex-col sm:flex-row gap-2 mt-2">
               <button className="w-full sm:w-auto bg-[#dd7109] text-white px-4 py-2 rounded" onClick={handleEmailSave}>Enregistrer</button>

@@ -6,6 +6,7 @@ import {
   User,
   onAuthStateChanged,
   signOut,
+  sendPasswordResetEmail,
 } from "firebase/auth";
 import { doc, setDoc, getDoc } from "firebase/firestore";
 
@@ -106,6 +107,21 @@ export function useAuth() {
     return snap.exists() ? snap.data() : null;
   };
 
+  // Mot de passe oublié
+  const forgotPassword = async (email: string) => {
+    setLoading(true);
+    setError(null);
+    try {
+      await sendPasswordResetEmail(auth, email);
+      setLoading(false);
+      return true;
+    } catch (err: any) {
+      setError(err.message || "Erreur lors de la demande de réinitialisation");
+      setLoading(false);
+      throw err;
+    }
+  };
+
   return {
     user,
     loading,
@@ -114,5 +130,6 @@ export function useAuth() {
     login,
     logout,
     getProfile,
+    forgotPassword,
   };
 }

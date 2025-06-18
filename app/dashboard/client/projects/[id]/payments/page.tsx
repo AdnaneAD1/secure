@@ -35,7 +35,7 @@ export default function ProjectPaymentsPage() {
           <div className="text-center text-red-500 py-12">{error}</div>
         )}
         {!loading && !error && payments.length === 0 && (
-          <div className="text-center text-gray-400 py-12">Aucune demande d'acompte pour ce projet</div>
+          <div className="text-center text-gray-400 py-12">Aucune demande d&apos;acompte pour ce projet</div>
         )}
         {payments.length > 0 && payments.filter((payment) => payment.status === "en_attente").map(payment => (
           <div key={payment.id} className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex flex-col md:flex-row md:items-center md:justify-between">

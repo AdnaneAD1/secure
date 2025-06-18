@@ -32,7 +32,6 @@ export async function seedDevisForProjects(projectIds: string[]) {
       type: "Devis",
       statut: "Validé",
       montant: 15000,
-      historique: "Validé le 01/05/2025\nOPR par email",
       pdfUrl: "https://example.com/devis-premium.pdf"
     },
     {
@@ -40,7 +39,6 @@ export async function seedDevisForProjects(projectIds: string[]) {
       type: "Devis",
       statut: "En attente",
       montant: 8000,
-      historique: "Mis à jour 10/05/2025\nOPR par email",
       pdfUrl: "https://example.com/devis-sdb.pdf"
     }
   ];

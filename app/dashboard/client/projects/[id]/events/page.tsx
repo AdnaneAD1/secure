@@ -57,7 +57,7 @@ export default function ProjectEventsPage() {
                   <th className="px-4 py-3 text-left font-medium">DATE DE DÉBUT</th>
                   <th className="px-4 py-3 text-left font-medium">DATE DE FIN</th>
                   <th className="px-4 py-3 text-left font-medium">TYPE</th>
-                  <th className="px-4 py-3 text-left font-medium">NOM DE L'ÉVÉNEMENT</th>
+                  <th className="px-4 py-3 text-left font-medium">NOM DE L&apos;ÉVÉNEMENT</th>
                   <th className="px-4 py-3 text-left font-medium">ADRESSE</th>
                 </tr>
               </thead>
