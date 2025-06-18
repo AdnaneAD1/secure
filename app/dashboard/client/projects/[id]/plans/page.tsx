@@ -5,8 +5,12 @@ import { usePlans } from "@/hooks/plans";
 
 export default function ProjectPlansPage() {
   const params = useParams();
-  const projectId = Array.isArray(params?.id) ? params.id[0] : params?.id;
-  const { plans, loading, error } = usePlans(projectId ?? "");
+  // Correction robustesse : params peut être null ou ne pas contenir id
+    let projectId = "";
+    if (params && "id" in params && params.id) {
+      projectId = Array.isArray(params.id) ? params.id[0] : params.id;
+    }
+    const { plans, loading, error } = usePlans(projectId);
 
   return (
     <div className="min-h-screen bg-gray-50 px-4 py-8">

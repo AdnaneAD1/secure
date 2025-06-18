@@ -6,8 +6,12 @@ import { useEvents } from "@/hooks/events";
 export default function ProjectEventsPage() {
   const [search, setSearch] = useState("");
   const params = useParams();
-  const projectId = Array.isArray(params?.id) ? params.id[0] : params?.id;
-  const { events, loading, error } = useEvents(projectId ?? "");
+  // Correction robustesse : params peut être null ou ne pas contenir id
+  let projectId = "";
+  if (params && "id" in params && params.id) {
+    projectId = Array.isArray(params.id) ? params.id[0] : params.id;
+  }
+  const { events, loading, error } = useEvents(projectId);
   const filteredEvents = events.filter(ev =>
     ev.name.toLowerCase().includes(search.toLowerCase()) ||
     ev.type.toLowerCase().includes(search.toLowerCase())

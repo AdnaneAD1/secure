@@ -2,12 +2,15 @@
 
 import { useEffect, useState } from "react";
 import { useProjects, getUserProfileById, getDevisByProjectId } from "@/hooks/project";
+import { useAcceptedArtisans } from "@/hooks/acceptedArtisans";
 import { useAuth } from "@/hooks/auth";
 import Image from "next/image";
 import Link from "next/link";
 import { Phone, Mail, MapPin, Users } from "lucide-react";
 
 export default function ProjectDetailsPage({ params }: { params: { id: string } }) {
+  // Hook pour artisans acceptés
+  const { artisans, loading, error } = useAcceptedArtisans(params.id);
   const { user } = useAuth();
   const { projects, fetchProjects } = useProjects(user?.uid ?? "");
   const [project, setProject] = useState<any>(null);
@@ -37,7 +40,7 @@ export default function ProjectDetailsPage({ params }: { params: { id: string } 
     } else {
       setClientProfile(null);
     }
-  }, [project?.client_id, project]);
+  }, [project?.client_id]);
 
   useEffect(() => {
     if (project && project.id) {
@@ -295,8 +298,21 @@ export default function ProjectDetailsPage({ params }: { params: { id: string } 
             <span className="ml-2 text-xs text-gray-500">{project.broker?.name}</span>
           </div>
           <div className="flex items-center gap-2 mb-2">
-            <Users className="w-4 h-4 text-gray-400" />
-
+            <div className="font-semibold text-[#dd7109] mb-2">Artisans acceptés</div>
+            {loading ? (
+              <span className="text-xs text-gray-400 ml-2">Chargement…</span>
+            ) : error ? (
+              <span className="text-xs text-red-400 ml-2">Erreur chargement artisans</span>
+            ) : !artisans.length ? (
+              <span className="text-xs text-gray-400 ml-2">Aucun artisan accepté</span>
+            ) : (
+              artisans.map(a => (
+                <div key={a.artisanId} className="flex items-center gap-2">
+                  <Users className="w-4 h-4 text-gray-400" />
+                  <span className="ml-2 text-xs text-gray-700 bg-gray-100 px-2 py-1 rounded">{a.displayName}</span>
+                </div>
+              ))
+            )}
           </div>
         </div>
       </div>

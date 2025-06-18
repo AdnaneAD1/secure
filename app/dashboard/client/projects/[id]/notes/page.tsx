@@ -21,8 +21,12 @@ export default function ProjectNotesPage() {
   const router = useRouter();
   // Next.js 13+ params
   const params = useParams();
-  const projectId = Array.isArray(params?.id) ? params.id[0] : params?.id;
-  const { notes, loading, error, addNote } = useNotes(projectId ?? "");
+  // Correction robustesse : params peut être null ou ne pas contenir id
+    let projectId = "";
+    if (params && "id" in params && params.id) {
+      projectId = Array.isArray(params.id) ? params.id[0] : params.id;
+    }
+    const { notes, loading, error, addNote } = useNotes(projectId);
   const { user } = useAuth();
 
   // Gestion du formulaire d'ajout

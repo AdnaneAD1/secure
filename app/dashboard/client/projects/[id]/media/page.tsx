@@ -7,8 +7,12 @@ import { useMedia } from "@/hooks/media";
 export default function ProjectMediaPage() {
   const [search, setSearch] = useState("");
   const params = useParams();
-  const projectId = Array.isArray(params?.id) ? params.id[0] : params?.id;
-  const { media, loading, error } = useMedia(projectId ?? "");
+  // Correction robustesse : params peut être null ou ne pas contenir id
+  let projectId = "";
+  if (params && "id" in params && params.id) {
+    projectId = Array.isArray(params.id) ? params.id[0] : params.id;
+  }
+  const { media, loading, error } = useMedia(projectId);
   const filteredMedias = media.filter(m =>
     m.title.toLowerCase().includes(search.toLowerCase()) ||
     m.tag.toLowerCase().includes(search.toLowerCase())

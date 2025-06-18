@@ -7,8 +7,12 @@ import { useState } from "react";
 
 export default function ProjectPaymentsPage() {
   const params = useParams();
-  const projectId = Array.isArray(params?.id) ? params.id[0] : params?.id;
-  const { payments, loading, error } = usePayments(projectId ?? "");
+  // Correction robustesse : params peut être null ou ne pas contenir id
+    let projectId = "";
+    if (params && "id" in params && params.id) {
+      projectId = Array.isArray(params.id) ? params.id[0] : params.id;
+    }
+    const { payments, loading, error } = usePayments(projectId);
 
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedPayment, setSelectedPayment] = useState<import("@/hooks/payments").ProjectPayment | null>(null);
