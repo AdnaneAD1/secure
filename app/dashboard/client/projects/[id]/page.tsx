@@ -52,7 +52,7 @@ export default function ProjectDetailsPage({ params }: { params: { id: string } 
     } else {
       setDevis([]);
     }
-  }, [project?.id, project]);
+  }, [project?.id]);
 
   // const [injecting, setInjecting] = useState<{events: boolean, media: boolean, plans: boolean, documents: boolean, payments: boolean}>({events: false, media: false, plans: false, documents: false, payments: false});
   // const [injectMsg, setInjectMsg] = useState<string>("");
