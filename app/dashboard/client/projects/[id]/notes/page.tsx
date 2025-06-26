@@ -4,6 +4,10 @@ import { Plus, CheckCircle, XCircle } from "lucide-react";
 import { useRouter, useParams } from "next/navigation";
 import { useNotes } from "@/hooks/notes";
 import { useAuth } from "@/hooks/auth";
+import { useAcceptedArtisans } from "@/hooks/acceptedArtisans";
+import { useEffect, useMemo } from "react";
+import { doc, getDoc } from "firebase/firestore";
+import { db } from "@/firebase/ClientApp";
 
 
 export default function ProjectNotesPage() {
@@ -16,6 +20,7 @@ export default function ProjectNotesPage() {
     emails: string[];
   };
   const [form, setForm] = useState<NoteForm>({ title: "", content: "", recipients: [], attachments: [], emails: [""] });
+  const [pendingFiles, setPendingFiles] = useState<File[]>([]);
   const [sending, setSending] = useState(false);
   const [notif, setNotif] = useState<{ type: "success" | "error"; message: string } | null>(null);
   const router = useRouter();
@@ -28,6 +33,52 @@ export default function ProjectNotesPage() {
     }
     const { notes, loading, error, addNote } = useNotes(projectId);
   const { user } = useAuth();
+
+  // Emails dynamiques (Artisan/Pilote)
+  const { artisans } = useAcceptedArtisans(projectId);
+  const [courtierEmail, setCourtierEmail] = useState<string>("");
+  const [project, setProject] = useState<any>(null);
+
+  // Charger le projet et le courtier
+  useEffect(() => {
+    if (!projectId) return;
+    (async () => {
+      const snap = await getDoc(doc(db, "projects", projectId));
+      if (snap.exists()) {
+        setProject(snap.data());
+        const brokerField = snap.data().broker;
+        let brokerId = "";
+        if (typeof brokerField === "string") {
+          brokerId = brokerField;
+        } else if (brokerField && typeof brokerField.id === "string") {
+          brokerId = brokerField.id;
+        } else if (brokerField && typeof brokerField.id === "number") {
+          brokerId = String(brokerField.id);
+        } else if (brokerField) {
+          console.warn("Format inattendu pour le champ broker:", brokerField);
+        }
+        if (brokerId) {
+          const brokerSnap = await getDoc(doc(db, "users", brokerId));
+          setCourtierEmail(brokerSnap.exists() ? brokerSnap.data()?.email || "" : "");
+        } else {
+          setCourtierEmail("");
+        }
+      }
+    })();
+  }, [projectId]);
+
+  // Générer la liste auto des destinataires selon les cases cochées
+  const autoRecipients = useMemo(() => {
+    let emails: string[] = [];
+    if (form.recipients.includes("Artisan")) {
+      emails = emails.concat(artisans.map(a => a.email).filter(Boolean));
+    }
+    if (form.recipients.includes("Pilote") && courtierEmail) {
+      emails.push(courtierEmail);
+    }
+    // TODO: Vendeur
+    return Array.from(new Set(emails)); // unique
+  }, [form.recipients, artisans, courtierEmail]);
 
   // Gestion du formulaire d'ajout
   const handleChange = (e: any) => {
@@ -53,14 +104,29 @@ export default function ProjectNotesPage() {
     e.preventDefault();
     setSending(true);
     try {
-      // Fusionne rôles cochés et emails saisis dans recipients
+      // Fusionne emails auto (Artisan/Pilote) et emails manuels
       const allRecipients = [
-        ...form.recipients,
+        ...autoRecipients,
         ...form.emails.filter(e => e.trim() !== "")
       ];
-      // Upload Cloudinary pour chaque fichier joint
+      // Upload Cloudinary pour chaque fichier joint (uniquement à la soumission)
       let uploadedFiles: string[] = [];
-      if (form.attachments && form.attachments.length > 0) {
+      if (pendingFiles && pendingFiles.length > 0) {
+        const { uploadImageToCloudinary, uploadFileToCloudinary } = await import("@/hooks/cloudinary");
+        const urls = await Promise.all(pendingFiles.map(async (file) => {
+          const isImage = file.type.startsWith("image/");
+          try {
+            if (isImage) {
+              return await uploadImageToCloudinary(file);
+            } else {
+              return await uploadFileToCloudinary(file);
+            }
+          } catch {
+            return null;
+          }
+        }));
+        uploadedFiles = urls.filter(Boolean) as string[];
+      } else if (form.attachments && form.attachments.length > 0) {
         uploadedFiles = [...form.attachments];
       }
       if (!projectId) return;
@@ -72,9 +138,27 @@ export default function ProjectNotesPage() {
         recipients: allRecipients,
         attachments: uploadedFiles,
       });
-      setNotif({ type: "success", message: "Note ajoutée avec succès !" });
+      // Envoi de la note par mail
+      try {
+        await fetch("/api/send-email", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            to: allRecipients,
+            subject: form.title || "Nouvelle note de projet",
+            html: `<div><h2>${form.title || "Note de projet"}</h2><p>${form.content.replace(/\n/g, "<br/>")}</p></div>`,
+            // Ajout simple des liens d'attachement si présents
+            ...(uploadedFiles.length > 0 ? { html: `<div><h2>${form.title || "Note de projet"}</h2><p>${form.content.replace(/\n/g, "<br/>")}</p><ul>${uploadedFiles.map(url => `<li><a href='${url}'>Pièce jointe</a></li>`).join("")}</ul></div>` } : {})
+          })
+        });
+      } catch (err) {
+        setNotif({ type: "error", message: "Note enregistrée mais erreur lors de l'envoi du mail." });
+        return;
+      }
+      setNotif({ type: "success", message: "Note ajoutée et envoyée par mail avec succès !" });
       setShowForm(false);
       setForm({ title: "", content: "", recipients: [], attachments: [], emails: [""] });
+      setPendingFiles([]);
     } catch (err) {
       setNotif({ type: "error", message: "Erreur lors de l'ajout de la note." });
     } finally {
@@ -85,25 +169,25 @@ export default function ProjectNotesPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 px-4 py-8">
-      <div className="flex flex-col sm:flex-row items-center justify-between mb-6 gap-4">
-        <div className="flex items-center gap-2">
-          <button
-            className="flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-[#dd7109] to-amber-500 text-white rounded-lg font-semibold shadow hover:opacity-90 transition"
-            onClick={() => window.history.back()}
-            type="button"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" strokeLinecap="round" strokeLinejoin="round" /></svg>
-            Retour
-          </button>
-          <h2 className="text-xl font-semibold text-gray-900 ml-2">Notes du projet</h2>
-        </div>
-        <button
-          className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[#dd7109] to-amber-500 text-white rounded-lg font-semibold shadow hover:opacity-90 transition"
-          onClick={() => setShowForm(true)}
-        >
-          <Plus className="w-4 h-4" /> Ajouter une note
-        </button>
-      </div>
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4 flex-wrap">
+  <div className="flex items-center gap-2 flex-shrink-0">
+    <button
+      className="flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-[#dd7109] to-amber-500 text-white rounded-lg font-semibold shadow hover:opacity-90 transition"
+      onClick={() => window.history.back()}
+      type="button"
+    >
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" strokeLinecap="round" strokeLinejoin="round" /></svg>
+      Retour
+    </button>
+    <h2 className="text-xl font-semibold text-gray-900 ml-2 whitespace-nowrap">Notes du projet</h2>
+  </div>
+  <button
+    className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[#dd7109] to-amber-500 text-white rounded-lg font-semibold shadow hover:opacity-90 transition flex-shrink-0"
+    onClick={() => setShowForm(true)}
+  >
+    <Plus className="w-4 h-4" /> Ajouter une note
+  </button>
+</div>
       <div className="mb-6 p-4 bg-blue-50 border border-blue-100 rounded-lg text-blue-900 text-sm flex items-start gap-2">
         <span className="mt-1">ℹ️</span>
         <div>
@@ -135,7 +219,7 @@ export default function ProjectNotesPage() {
                 ))}
               </div>
             )}
-            <div className="text-xs text-gray-500">Envoyé par mail à {note.author}</div>
+            <div className="text-xs text-gray-500">Envoyé par {note.author}</div>
             <div className="absolute right-0 top-2 text-gray-300 group-hover:text-gray-400 cursor-pointer">•••</div>
           </div>
         ))}
@@ -197,25 +281,11 @@ export default function ProjectNotesPage() {
                   type="file"
                   className="block w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-[#dd7109]/90 file:text-white hover:file:bg-[#dd7109]"
                   multiple
-                  onChange={async e => {
-  if (e.target.files) {
-    const { uploadImageToCloudinary, uploadFileToCloudinary } = await import("@/hooks/cloudinary");
-    const files = Array.from(e.target.files);
-    const urls = await Promise.all(files.map(async (file) => {
-      const isImage = file.type.startsWith("image/");
-      try {
-        if (isImage) {
-          return await uploadImageToCloudinary(file);
-        } else {
-          return await uploadFileToCloudinary(file);
-        }
-      } catch {
-        return null;
-      }
-    }));
-    setForm(f => ({ ...f, attachments: urls.filter(Boolean) as string[] }));
-  }
-}}
+                  onChange={e => {
+                    if (e.target.files) {
+                      setPendingFiles(Array.from(e.target.files));
+                    }
+                  }}
                 />
               </div>
               <div>

@@ -5,6 +5,7 @@ import { collection, query, where, getDocs, doc, getDoc } from "firebase/firesto
 export interface AcceptedArtisan {
   artisanId: string;
   displayName: string;
+  email: string;
 }
 
 export function useAcceptedArtisans(projectId: string) {
@@ -26,7 +27,11 @@ export function useAcceptedArtisans(projectId: string) {
         const promises = artisanIds.map(async (id) => {
           const userSnap = await getDoc(doc(db, "users", id));
           const data = userSnap.data();
-          return { artisanId: id, displayName: data?.displayName || data?.firstName + ' ' + (data?.lastName || '') || id };
+          return {
+            artisanId: id,
+            displayName: data?.displayName || data?.firstName + ' ' + (data?.lastName || '') || id,
+            email: data?.email || '',
+          };
         });
         const results = await Promise.all(promises);
         setArtisans(results);
