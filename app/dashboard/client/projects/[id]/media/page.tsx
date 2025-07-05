@@ -1,21 +1,27 @@
 "use client";
 import Image from "next/image";
 import { useState, useEffect } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useMedia } from "@/hooks/media";
 import { addMediaComment } from "@/hooks/media.comments";
 import { useAuth } from "@/hooks/auth";
 import { useSettings } from "@/hooks/settings";
 import MediaCard from "./MediaCard";
+import { ChevronLeft, Search, X, Filter, CheckCircle, XCircle } from "lucide-react";
 
-// Simple modal composant
 function Modal({ open, onClose, children }: { open: boolean; onClose: () => void; children: React.ReactNode }) {
   if (!open) return null;
   return (
-    <div className="fixed z-50 inset-0 bg-black/30 flex items-center justify-center" onClick={onClose}>
-      <div className="bg-white rounded-xl shadow-lg p-6 min-w-[320px] max-w-[90vw] relative" onClick={e => e.stopPropagation()}>
-        <button className="absolute top-2 right-2 text-gray-400 hover:text-gray-600" onClick={onClose} aria-label="Fermer">
-          <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+    <div className="fixed z-50 inset-0 bg-black/30 flex items-center justify-center p-4" onClick={onClose}>
+      <div 
+        className="bg-white rounded-xl shadow-lg p-6 w-full max-w-md relative max-h-[90vh] overflow-y-auto"
+        onClick={e => e.stopPropagation()}
+      >
+        <button 
+          className="absolute top-4 right-4 text-gray-500 hover:text-gray-700" 
+          onClick={onClose}
+        >
+          <X className="w-5 h-5" />
         </button>
         {children}
       </div>
@@ -26,18 +32,21 @@ function Modal({ open, onClose, children }: { open: boolean; onClose: () => void
 export default function ProjectMediaPage() {
   const [search, setSearch] = useState("");
   const params = useParams();
-  // Correction robustesse : params peut être null ou ne pas contenir id
-  let projectId = "";
-  if (params && "id" in params && params.id) {
-    projectId = Array.isArray(params.id) ? params.id[0] : params.id;
-  }
+  const router = useRouter();
+  
+  const projectId = params?.id 
+    ? Array.isArray(params.id) 
+      ? params.id[0] 
+      : params.id
+    : "";
+
   const { media, loading, error } = useMedia(projectId);
   const filteredMedias = media.filter(m =>
     m.title.toLowerCase().includes(search.toLowerCase()) ||
     m.tag.toLowerCase().includes(search.toLowerCase())
   );
 
-  // Pour le modal de commentaire
+  // Comment modal state
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedMedia, setSelectedMedia] = useState<any>(null);
   const [comment, setComment] = useState("");
@@ -47,41 +56,42 @@ export default function ProjectMediaPage() {
 
   const { user } = useAuth();
   const { profile, fetchProfile } = useSettings(user?.uid ?? "");
+  
   useEffect(() => {
     if (user?.uid) fetchProfile();
   }, [user?.uid, fetchProfile]);
 
-  // Pour le modal d'affichage des commentaires
-  const [commentsModalOpen, setCommentsModalOpen] = useState(false);
-  const [commentsMedia, setCommentsMedia] = useState<any>(null);
-
   const handleDoubleClick = (media: any) => {
     setSelectedMedia(media);
-    setComment("");
-    setCommentError("");
     setModalOpen(true);
   };
+
   const handleCloseModal = () => {
     setModalOpen(false);
     setSelectedMedia(null);
     setComment("");
     setCommentError("");
   };
+
   const handleCommentSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setCommentError("");
+    
     if (!comment.trim()) {
       setCommentError("Le commentaire ne peut pas être vide.");
       return;
     }
+    
     if (!selectedMedia?.id) {
       setCommentError("Aucun média sélectionné.");
       return;
     }
+    
     if (!user) {
       setCommentError("Vous devez être connecté pour commenter.");
       return;
     }
+
     setSending(true);
     try {
       await addMediaComment(selectedMedia.id, {
@@ -91,7 +101,6 @@ export default function ProjectMediaPage() {
       setNotif({ type: "success", message: "Commentaire ajouté avec succès !" });
       setModalOpen(false);
     } catch (err) {
-      setCommentError("Erreur lors de l'envoi du commentaire.");
       setNotif({ type: "error", message: "Erreur lors de l'envoi du commentaire." });
     } finally {
       setSending(false);
@@ -100,77 +109,151 @@ export default function ProjectMediaPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 px-4 py-8">
-      <div className="flex items-center justify-between mb-8">
+    <div className="min-h-screen bg-white px-4 py-6 sm:px-6 lg:px-8">
+      {/* Header avec titre aligné à droite */}
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
         <button
-          className="flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-[#dd7109] to-amber-500 text-white rounded-lg font-semibold shadow hover:opacity-90 transition"
-          onClick={() => window.history.back()}
-          type="button"
+          onClick={() => router.back()}
+          className="flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-[#dd7109] to-amber-500 text-white rounded-lg font-semibold shadow hover:opacity-90 transition w-fit"
         >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" strokeLinecap="round" strokeLinejoin="round" /></svg>
+          <ChevronLeft className="w-5 h-5" />
           Retour
         </button>
-        <h2 className="text-lg font-semibold text-gray-900">Médiathèque</h2>
+        <h1 className="text-xl md:text-2xl font-bold text-gray-900 text-right md:text-left w-full md:w-auto">
+          Médiathèque du projet
+        </h1>
       </div>
-      <div className="flex items-center gap-2 mb-8">
-        <input
-          type="text"
-          placeholder="Rechercher des médias..."
-          className="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-red-200 focus:border-red-400 transition"
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-        />
-        <button className="flex items-center gap-1 px-4 py-2 border border-gray-200 rounded-lg text-gray-600 bg-white hover:bg-gray-100 transition text-sm">
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
+
+      {/* Barre de recherche ET bouton filtre côte à côte */}
+      <div className="flex items-center gap-2 mb-6">
+        <div className="relative flex-1">
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <Search className="h-4 w-4 text-gray-400" />
+          </div>
+          <input
+            type="text"
+            placeholder="Rechercher des médias..."
+            className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500 sm:text-sm"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
+        <button className="flex items-center gap-1 px-3 py-2 bg-white border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors text-sm">
+          <Filter className="w-4 h-4" />
           Filtrer
         </button>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+
+      {/* Media Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {loading ? (
-          <div className="col-span-full text-center text-gray-400 py-8">Chargement des médias...</div>
+          <div className="col-span-full flex justify-center py-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-orange-500"></div>
+          </div>
         ) : error ? (
-          <div className="col-span-full text-center text-red-500 py-8">{error}</div>
+          <div className="col-span-full text-center py-8 text-red-500">
+            {error}
+          </div>
         ) : filteredMedias.length === 0 ? (
-          <div className="col-span-full text-center text-gray-400 py-8">Aucun média trouvé pour ce projet.</div>
+          <div className="col-span-full text-center py-8 text-gray-500">
+            Aucun média trouvé pour ce projet.
+          </div>
         ) : (
           filteredMedias.map(media => (
-            <MediaCard key={media.id} media={media} onDoubleClick={handleDoubleClick} />
+            <MediaCard 
+              key={media.id} 
+              media={media} 
+              onDoubleClick={handleDoubleClick} 
+            />
           ))
         )}
       </div>
-      {/* Modal de commentaire */}
+
+      {/* Comment Modal */}
       <Modal open={modalOpen} onClose={handleCloseModal}>
-        <h3 className="text-lg font-semibold mb-2">Commenter le média</h3>
-        {selectedMedia && (
-          <div className="mb-3 flex gap-3 items-center">
-            <div className="w-16 h-16 relative rounded overflow-hidden flex-shrink-0">
-              <Image src={selectedMedia.url} alt={selectedMedia.title} fill className="object-cover" />
-            </div>
+        <div className="space-y-4">
+          <div className="flex items-start gap-3">
+            {selectedMedia?.url && (
+              <div className="w-16 h-16 relative rounded-md overflow-hidden flex-shrink-0">
+                <Image
+                  src={selectedMedia.url}
+                  alt={selectedMedia.title || "Média"}
+                  fill
+                  className="object-cover"
+                />
+              </div>
+            )}
             <div>
-              <div className="font-medium text-gray-900 text-sm">{selectedMedia.title}</div>
-              <div className="text-xs text-gray-500">{selectedMedia.date}</div>
+              <h3 className="font-semibold text-gray-900">
+                {selectedMedia?.title || "Sans titre"}
+              </h3>
+              <p className="text-sm text-gray-500">
+                {selectedMedia?.date || "Date inconnue"}
+              </p>
             </div>
           </div>
-        )}
-        <form onSubmit={handleCommentSubmit} className="flex flex-col gap-2">
-          <textarea
-            className="border border-amber-200 rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#dd7109]/50 focus:border-[#dd7109] transition min-h-[60px]"
-            placeholder="Écrire un commentaire..."
-            value={comment}
-            onChange={e => setComment(e.target.value)}
-            disabled={sending}
-            required
-          />
-          {commentError && <div className="text-red-500 text-xs">{commentError}</div>}
-          <div className="flex gap-2 justify-end mt-2">
-            <button type="button" className="px-4 py-1 rounded bg-gray-100 text-gray-700 hover:bg-gray-200" onClick={handleCloseModal} disabled={sending}>Annuler</button>
-            <button type="submit" className="px-4 py-1 rounded bg-[#dd7109] text-white font-semibold hover:bg-amber-600 disabled:opacity-60" disabled={sending}>{sending ? "Envoi..." : "Commenter"}</button>
-          </div>
-        </form>
+
+          <form onSubmit={handleCommentSubmit} className="space-y-3">
+            <div>
+              <label htmlFor="comment" className="block text-sm font-medium text-gray-700 mb-1">
+                Ajouter un commentaire
+              </label>
+              <textarea
+                id="comment"
+                rows={3}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500"
+                placeholder="Votre commentaire..."
+                value={comment}
+                onChange={(e) => setComment(e.target.value)}
+                disabled={sending}
+              />
+              {commentError && (
+                <p className="mt-1 text-sm text-red-600">{commentError}</p>
+              )}
+            </div>
+
+            <div className="flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={handleCloseModal}
+                className="px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
+                disabled={sending}
+              >
+                Annuler
+              </button>
+              <button
+                type="submit"
+                className="px-3 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-orange-500 hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 disabled:opacity-70"
+                disabled={sending}
+              >
+                {sending ? (
+                  <span className="flex items-center">
+                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Envoi...
+                  </span>
+                ) : (
+                  "Envoyer"
+                )}
+              </button>
+            </div>
+          </form>
+        </div>
       </Modal>
+
+      {/* Notification */}
       {notif && (
-        <div className={`fixed bottom-4 left-1/2 -translate-x-1/2 px-4 py-2 rounded shadow-lg text-white z-50 ${notif.type === "success" ? "bg-green-500" : "bg-red-500"}`}>
-          {notif.message}
+        <div className={`fixed bottom-4 left-1/2 transform -translate-x-1/2 px-4 py-2 rounded-md shadow-lg flex items-center gap-2 ${
+          notif.type === "success" ? "bg-green-500" : "bg-red-500"
+        } text-white`}>
+          {notif.type === "success" ? (
+            <CheckCircle className="w-5 h-5" />
+          ) : (
+            <XCircle className="w-5 h-5" />
+          )}
+          <span>{notif.message}</span>
         </div>
       )}
     </div>

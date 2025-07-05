@@ -2,40 +2,76 @@ import Image from "next/image";
 import { useMediaComments } from "@/hooks/media.comments";
 import { useState } from "react";
 import MediaCommentsModal from "./MediaCommentsModal";
+import { MessageSquare } from "lucide-react";
 
 export default function MediaCard({ media, onDoubleClick }: { media: any; onDoubleClick: (media: any) => void }) {
   const { comments } = useMediaComments(media.id);
   const [commentsModalOpen, setCommentsModalOpen] = useState(false);
 
   return (
-    <div className="bg-white rounded-xl shadow border border-gray-100 p-3 flex flex-col">
+    <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow duration-200 flex flex-col h-full">
+      {/* Zone image cliquable */}
       <div
-        className="relative w-full h-40 rounded-lg overflow-hidden mb-3 cursor-pointer group"
+        className="relative w-full aspect-square overflow-hidden cursor-pointer"
         onDoubleClick={() => onDoubleClick(media)}
         title="Double-cliquez pour commenter"
       >
-        <Image src={media.url} alt={media.title} fill className="object-cover group-hover:opacity-80 transition" />
-      </div>
-      <div className="flex-1 flex items-center gap-2">
-        <div className="flex-1">
-          <div className="font-medium text-gray-900 text-sm mb-1">{media.title}</div>
-          <div className="text-xs text-gray-500 mb-1">{media.date}</div>
-        </div>
-        <div className="inline-block px-3 py-1 rounded-full bg-gray-100 text-gray-700 text-xs font-semibold border border-gray-200">{media.tag}</div>
-        {/* Icône message si commentaires */}
-        {comments && comments.length > 0 && (
-          <button
-            className="ml-2 flex items-center gap-1 text-amber-700 hover:text-amber-900 focus:outline-none"
-            title="Voir les commentaires"
-            onClick={() => setCommentsModalOpen(true)}
-            type="button"
-          >
-            <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg>
-            <span className="text-xs font-semibold">{comments.length}</span>
-          </button>
+        <Image 
+          src={media.url} 
+          alt={media.title || "Média sans titre"} 
+          fill 
+          className="object-cover"
+          sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 33vw"
+        />
+        
+        {/* Badge de tag en overlay */}
+        {media.tag && (
+          <div className="absolute bottom-2 left-2">
+            <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-white/90 text-gray-800 backdrop-blur-sm">
+              {media.tag}
+            </span>
+          </div>
         )}
       </div>
-      <MediaCommentsModal open={commentsModalOpen} onClose={() => setCommentsModalOpen(false)} media={media} />
+
+      {/* Contenu texte */}
+      <div className="p-3 flex-1 flex flex-col">
+        <div className="mb-2">
+          <h3 className="font-medium text-gray-900 text-sm line-clamp-2">
+            {media.title || "Sans titre"}
+          </h3>
+          <p className="text-xs text-gray-500 mt-1">
+            {media.date || "Date inconnue"}
+          </p>
+        </div>
+
+        {/* Bouton commentaires */}
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            setCommentsModalOpen(true);
+          }}
+          className={`mt-auto flex items-center gap-1 text-xs ${
+            comments?.length > 0 
+              ? "text-orange-600 hover:text-orange-800 font-medium" 
+              : "text-gray-400 hover:text-gray-600"
+          } transition-colors w-fit`}
+          disabled={!comments || comments.length === 0}
+          title={comments?.length > 0 ? `Voir les ${comments.length} commentaires` : "Aucun commentaire"}
+        >
+          <MessageSquare className="w-4 h-4" />
+          {comments?.length > 0 && (
+            <span>{comments.length}</span>
+          )}
+        </button>
+      </div>
+
+      {/* Modal des commentaires */}
+      <MediaCommentsModal 
+        open={commentsModalOpen} 
+        onClose={() => setCommentsModalOpen(false)} 
+        media={media} 
+      />
     </div>
   );
 }
