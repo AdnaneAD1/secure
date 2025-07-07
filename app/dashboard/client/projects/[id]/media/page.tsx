@@ -7,9 +7,9 @@ import { addMediaComment } from "@/hooks/media.comments";
 import { useAuth } from "@/hooks/auth";
 import { useSettings } from "@/hooks/settings";
 import MediaCard from "./MediaCard";
-import { ChevronLeft, Search, X, Filter, CheckCircle, XCircle } from "lucide-react";
+import { ChevronLeft, Search, X, Filter, CheckCircle, XCircle, GalleryHorizontal } from "lucide-react";
 
-function Modal({ open, onClose, children }: { open: boolean; onClose: () => void; children: React.ReactNode }) {
+function Modal({ open, onClose, children, Image }: { open: boolean; onClose: () => void; children: React.ReactNode }) {
   if (!open) return null;
   return (
     <div className="fixed z-50 inset-0 bg-black/30 flex items-center justify-center p-4" onClick={onClose}>
@@ -111,18 +111,29 @@ export default function ProjectMediaPage() {
   return (
     <div className="min-h-screen bg-white px-4 py-6 sm:px-6 lg:px-8">
       {/* Header avec titre aligné à droite */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
-        <button
-          onClick={() => router.back()}
-          className="flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-[#dd7109] to-amber-500 text-white rounded-lg font-semibold shadow hover:opacity-90 transition w-fit"
-        >
-          <ChevronLeft className="w-5 h-5" />
-          Retour
-        </button>
-        <h1 className="text-xl md:text-2xl font-bold text-gray-900 text-right md:text-left w-full md:w-auto">
-          Médiathèque du projet
-        </h1>
+<header className="bg-white sticky top-0 z-30">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between py-4 sm:h-16 space-y-3 sm:space-y-0">
+          <div className="flex items-center space-x-3 sm:space-x-4">
+            <button
+              onClick={() => router.back()}
+              className="flex items-center space-x-1 sm:space-x-2 text-gray-600 hover:text-gray-900 transition-colors"
+              aria-label="Retour à la page précédente"
+            >
+              <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
+              <span className="font-medium text-sm sm:text-base">Retour</span>
+            </button>
+
+            <div className="flex items-center space-x-2 sm:space-x-3">
+              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center bg-[#dd7109]">
+                <GalleryHorizontal className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
+              </div>
+              <h1 className="text-lg sm:text-xl font-semibold text-gray-900">Médiathèque</h1>
+            </div>
+          </div>
+        </div>
       </div>
+  </header>
 
       {/* Barre de recherche ET bouton filtre côte à côte */}
       <div className="flex items-center gap-2 mb-6">
