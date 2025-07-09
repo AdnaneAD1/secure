@@ -11,6 +11,39 @@ import {
   doc
 } from "firebase/firestore";
 
+export type PaymentValidationInfo = {
+  montant: number;
+  devise: string;
+  dateVirement: string;
+  reference: string;
+  banque?: string;
+};
+
+/**
+ * Met à jour le paiement avec les infos de validation saisies par l'utilisateur.
+ * @param paymentId id du paiement à mettre à jour
+ * @param validation objet contenant montant, devise, dateVirement, reference, banque
+ */
+export async function updatePaymentValidationInfo(paymentId: string, validation: PaymentValidationInfo) {
+  try {
+    await updateDoc(doc(db, "payments", paymentId), {
+      validation: {
+        montant: validation.montant,
+        devise: validation.devise,
+        dateVirement: validation.dateVirement,
+        reference: validation.reference,
+        banque: validation.banque || null,
+        updatedAt: new Date().toISOString()
+      }
+    });
+    return true;
+  } catch (e) {
+    console.error("Erreur lors de la mise à jour de la validation de paiement:", e);
+    return false;
+  }
+}
+
+
 export type PaymentStatus = "validé" | "en_attente";
 export interface ProjectPayment {
   id: string;

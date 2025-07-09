@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import type { ProjectPayment } from "@/hooks/payments";
+import { updatePaymentValidationInfo } from "@/hooks/payments";
 
 
 interface PaymentModalProps {
@@ -15,6 +16,16 @@ export default function PaymentModal({ open, onClose, payment }: PaymentModalPro
   const BIC = "BNPAFRPPXXX";
   const HOLDER = "ACME Solutions SAS";
   const BANK = "BNP Paribas";
+
+  const [showValidationForm, setShowValidationForm] = useState(false);
+  const [transferAmount, setTransferAmount] = useState(payment?.amount || "");
+  const [currency, setCurrency] = useState("EUR");
+  const [transferDate, setTransferDate] = useState("");
+  const [reference, setReference] = useState("");
+  const [bankName, setBankName] = useState("");
+  const [formError, setFormError] = useState<string | null>(null);
+  const [formSuccess, setFormSuccess] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
 
   if (!open || !payment) return null;
 
@@ -63,7 +74,122 @@ export default function PaymentModal({ open, onClose, payment }: PaymentModalPro
             </div>
           </div>
         </div>
+        <div className="pt-6">
+          {!showValidationForm && (
+            <button
+              className="px-4 py-2 rounded-xl bg-green-600 text-white font-medium"
+              onClick={() => setShowValidationForm(true)}
+            >
+              Valider le paiement
+            </button>
+          )}
+
+          {showValidationForm && (
+            <form
+              className="space-y-4 mt-2 bg-gray-50 border border-gray-200 rounded-lg p-4"
+              onSubmit={async e => {
+                e.preventDefault();
+                setFormError(null);
+                setFormSuccess(null);
+                setSubmitting(true);
+                if (!transferAmount || !currency || !transferDate || !reference) {
+                  setFormError("Merci de remplir tous les champs obligatoires.");
+                  setSubmitting(false);
+                  return;
+                }
+                const ok = await updatePaymentValidationInfo(payment.id, {
+                  montant: Number(transferAmount),
+                  devise: currency,
+                  dateVirement: transferDate,
+                  reference,
+                  banque: bankName
+                });
+                if (ok) {
+                  setFormSuccess("Merci ! Votre déclaration de paiement a bien été transmise.");
+                  setShowValidationForm(false);
+                } else {
+                  setFormError("Erreur lors de la transmission. Veuillez réessayer.");
+                }
+                setSubmitting(false);
+              }}
+            >
+              <div>
+                <label className="block font-medium mb-1">Montant du virement 💶 <span className="text-red-500">*</span></label>
+                <input
+                  type="number"
+                  className="border rounded px-3 py-2 w-full"
+                  value={transferAmount}
+                  min={0}
+                  step="0.01"
+                  onChange={e => setTransferAmount(e.target.value)}
+                  required
+                />
+              </div>
+              <div>
+                <label className="block font-medium mb-1">Devise utilisée 💱 <span className="text-red-500">*</span></label>
+                <input
+                  type="text"
+                  className="border rounded px-3 py-2 w-full"
+                  value={currency}
+                  onChange={e => setCurrency(e.target.value)}
+                  required
+                />
+              </div>
+              <div>
+                <label className="block font-medium mb-1">Date estimée du virement 📅 <span className="text-red-500">*</span></label>
+                <input
+                  type="date"
+                  className="border rounded px-3 py-2 w-full"
+                  value={transferDate}
+                  onChange={e => setTransferDate(e.target.value)}
+                  required
+                />
+              </div>
+              <div>
+                <label className="block font-medium mb-1">Libellé ou référence du virement ✏️ <span className="text-red-500">*</span></label>
+                <input
+                  type="text"
+                  className="border rounded px-3 py-2 w-full"
+                  value={reference}
+                  onChange={e => setReference(e.target.value)}
+                  required
+                />
+              </div>
+              <div>
+                <label className="block font-medium mb-1">Nom de la banque ou du titulaire (optionnel)</label>
+                <input
+                  type="text"
+                  className="border rounded px-3 py-2 w-full"
+                  value={bankName}
+                  onChange={e => setBankName(e.target.value)}
+                  placeholder="Nom de la banque ou du titulaire"
+                />
+              </div>
+              {formError && <div className="text-red-500 text-sm mt-1">{formError}</div>}
+              <div className="flex gap-2 pt-2">
+                <button
+                  type="submit"
+                  className="px-4 py-2 rounded-xl bg-green-600 text-white font-medium disabled:opacity-60"
+                  disabled={submitting}
+                >
+                  {submitting ? "Envoi en cours..." : "Envoyer"}
+                </button>
+                <button
+                  type="button"
+                  className="px-4 py-2 rounded-xl bg-gray-300 text-gray-800 font-medium"
+                  onClick={() => setShowValidationForm(false)}
+                >
+                  Annuler
+                </button>
+              </div>
+            </form>
+          )}
+          {formSuccess && (
+            <div className="text-green-600 font-semibold mt-4">{formSuccess}</div>
+          )}
+        </div>
       </div>
     </div>
   );
 }
+
