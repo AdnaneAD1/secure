@@ -25,13 +25,19 @@ export default function LoginPage() {
   // Traduit les erreurs Firebase en messages utilisateur
   function getFriendlyErrorMessage(error: string | null) {
     if (!error) return null;
-    if (error.includes('auth/invalid-credential')) return "Email ou mot de passe incorrect."
-    if (error.includes('auth/user-not-found')) return "Aucun compte trouvé avec cet email.";
-    if (error.includes('auth/wrong-password')) return "Mot de passe incorrect.";
-    if (error.includes('auth/invalid-email')) return "L'adresse email est invalide.";
-    if (error.includes('auth/too-many-requests')) return "Trop de tentatives. Réessayez plus tard.";
-    if (error.includes('auth/network-request-failed')) return "Problème de connexion réseau. Vérifiez votre connexion internet.";
-    if (error.includes("auth/account-disabled")) return "Le compte est désactivé."
+    if (error.includes("auth/invalid-credential"))
+      return "Email ou mot de passe incorrect.";
+    if (error.includes("auth/user-not-found"))
+      return "Aucun compte trouvé avec cet email.";
+    if (error.includes("auth/wrong-password")) return "Mot de passe incorrect.";
+    if (error.includes("auth/invalid-email"))
+      return "L'adresse email est invalide.";
+    if (error.includes("auth/too-many-requests"))
+      return "Trop de tentatives. Réessayez plus tard.";
+    if (error.includes("auth/network-request-failed"))
+      return "Problème de connexion réseau. Vérifiez votre connexion internet.";
+    if (error.includes("auth/account-disabled"))
+      return "Le compte est désactivé.";
     return "Erreur : " + error;
   }
   const router = useRouter();
@@ -52,9 +58,14 @@ export default function LoginPage() {
       <div className="w-full lg:w-1/2 flex items-center justify-center p-8 lg:p-16">
         <div className="w-full max-w-md space-y-8 animate-fade-in">
           {/* Logo */}
-          <div className="flex items-center gap-2 text-white">
-            <Wallet className="w-8 h-8 text-[#dd7109]" />
-            <span className="text-2xl font-bold">SecureAcompteTravaux</span>
+          <div className="flex justify-center">
+            <Image
+              src="/logo-blanc-sf.svg" // Chemin vers ton logo dans /public
+              alt="Logo SecureAcompte"
+              width={350}
+              height={40}
+              className="rounded-xl"
+            />
           </div>
 
           <div className="space-y-2">
@@ -113,7 +124,7 @@ export default function LoginPage() {
                 type="button"
                 className="text-[#dd7109] hover:text-[#dd7109]/90 transition-colors underline focus:outline-none"
                 onClick={() => {
-                  setShowForgot(v => !v);
+                  setShowForgot((v) => !v);
                   setForgotSuccess(null);
                   setForgotError(null);
                   setForgotEmail(email);
@@ -130,9 +141,25 @@ export default function LoginPage() {
             >
               {loading ? (
                 <>
-                  <svg className="animate-spin w-5 h-5 mr-2 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                  <svg
+                    className="animate-spin w-5 h-5 mr-2 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                    ></path>
                   </svg>
                   Connexion...
                 </>
@@ -149,8 +176,13 @@ export default function LoginPage() {
           {/* Bloc mot de passe oublié */}
           {showForgot && (
             <div className="bg-white/10 border border-white/20 rounded-lg p-6 mt-4 animate-fade-in">
-              <h3 className="text-lg font-semibold text-white mb-2">Réinitialiser le mot de passe</h3>
-              <p className="text-gray-400 text-sm mb-4">Saisis ton adresse email pour recevoir un lien de réinitialisation.</p>
+              <h3 className="text-lg font-semibold text-white mb-2">
+                Réinitialiser le mot de passe
+              </h3>
+              <p className="text-gray-400 text-sm mb-4">
+                Saisis ton adresse email pour recevoir un lien de
+                réinitialisation.
+              </p>
               <form
                 onSubmit={async (e) => {
                   e.preventDefault();
@@ -159,9 +191,14 @@ export default function LoginPage() {
                   setForgotError(null);
                   try {
                     await forgotPassword(forgotEmail);
-                    setForgotSuccess("Un email de réinitialisation a été envoyé si l'adresse existe dans notre base.");
+                    setForgotSuccess(
+                      "Un email de réinitialisation a été envoyé si l'adresse existe dans notre base."
+                    );
                   } catch (err: any) {
-                    setForgotError("Erreur lors de l'envoi de l'email : " + (err.message || err));
+                    setForgotError(
+                      "Erreur lors de l'envoi de l'email : " +
+                        (err.message || err)
+                    );
                   } finally {
                     setForgotLoading(false);
                   }
@@ -171,7 +208,7 @@ export default function LoginPage() {
                 <input
                   type="email"
                   value={forgotEmail}
-                  onChange={e => setForgotEmail(e.target.value)}
+                  onChange={(e) => setForgotEmail(e.target.value)}
                   placeholder="Ton adresse email"
                   className="w-full bg-white/5 border border-white/10 rounded-lg py-3 px-5 text-white placeholder:text-gray-400 focus:outline-none focus:border-[#dd7109] transition-colors"
                   required
@@ -184,9 +221,25 @@ export default function LoginPage() {
                 >
                   {forgotLoading ? (
                     <>
-                      <svg className="animate-spin w-5 h-5 mr-2 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                      <svg
+                        className="animate-spin w-5 h-5 mr-2 text-white"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        ></circle>
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                        ></path>
                       </svg>
                       Envoi en cours…
                     </>
@@ -194,8 +247,14 @@ export default function LoginPage() {
                     <>Recevoir le lien</>
                   )}
                 </button>
-                {forgotSuccess && <div className="text-green-400 text-sm mt-2">{forgotSuccess}</div>}
-                {forgotError && <div className="text-red-400 text-sm mt-2">{forgotError}</div>}
+                {forgotSuccess && (
+                  <div className="text-green-400 text-sm mt-2">
+                    {forgotSuccess}
+                  </div>
+                )}
+                {forgotError && (
+                  <div className="text-red-400 text-sm mt-2">{forgotError}</div>
+                )}
               </form>
             </div>
           )}

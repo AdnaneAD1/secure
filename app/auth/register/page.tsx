@@ -3,7 +3,15 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/auth";
-import { Wallet, Mail, Lock, User, Building, Phone, ArrowRight } from "lucide-react";
+import {
+  Wallet,
+  Mail,
+  Lock,
+  User,
+  Building,
+  Phone,
+  ArrowRight,
+} from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 
@@ -29,12 +37,11 @@ export default function RegisterPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if(formData.password !== formData.confirmPassword) {
+    if (formData.password !== formData.confirmPassword) {
       alert("Les mots de passe ne correspondent pas");
       return;
     }
     try {
-      
       router.push("/dashboard/client");
     } catch (err) {
       // L'erreur est gérée par le hook
@@ -48,8 +55,13 @@ export default function RegisterPage() {
         <div className="w-full max-w-md space-y-8 animate-fade-in">
           {/* Logo */}
           <div className="flex items-center gap-2 text-white">
-            <Wallet className="w-8 h-8 text-[#dd7109]" />
-            <span className="text-2xl font-bold">SecureAcompteTravaux</span>
+            <Image
+              src="/logo-blanc-sf.svg" // Chemin vers ton logo dans /public
+              alt="Logo SecureAcompte"
+              width={200}
+              height={40}
+              className="rounded-xl"
+            />
           </div>
 
           <div className="space-y-2">
@@ -60,11 +72,11 @@ export default function RegisterPage() {
           </div>
 
           {error && (
-  <div className="bg-red-100 text-red-700 px-4 py-2 rounded mb-4 text-sm">
-    {error}
-  </div>
-)}
-<form onSubmit={handleSubmit} className="space-y-6">
+            <div className="bg-red-100 text-red-700 px-4 py-2 rounded mb-4 text-sm">
+              {error}
+            </div>
+          )}
+          <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="relative">
                 <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -167,9 +179,25 @@ export default function RegisterPage() {
             >
               {loading ? (
                 <>
-                  <svg className="animate-spin w-5 h-5 mr-2 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                  <svg
+                    className="animate-spin w-5 h-5 mr-2 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                    ></path>
                   </svg>
                   Création...
                 </>
