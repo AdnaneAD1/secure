@@ -282,7 +282,7 @@ export default function LoginPage() {
                 Sécurisez vos acomptes
               </h3>
               <p className="text-white/80">
-                Rejoignez plus de 4000 entreprises qui font confiance à notre
+                Rejoignez plus de 40 entreprises qui font confiance à notre
                 solution pour la gestion de leurs acomptes.
               </p>
             </div>
