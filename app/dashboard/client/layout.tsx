@@ -19,7 +19,7 @@ import {
   X,
   User,
   HelpCircle,
-  Building2
+  Building2,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -45,7 +45,8 @@ export default function ClientDashboardLayout({
     {
       id: 1,
       title: "Paiement en attente",
-      message: "Un acompte est en attente de paiement pour le projet Villa Moderne",
+      message:
+        "Un acompte est en attente de paiement pour le projet Villa Moderne",
       time: "Il y a 2 heures",
     },
     {
@@ -69,8 +70,6 @@ export default function ClientDashboardLayout({
       </div>
     );
   }
-
-
 
   const navItems = [
     {
@@ -96,21 +95,28 @@ export default function ClientDashboardLayout({
   ];
 
   const handleLogout = () => {
-    router.push('/auth/login');
+    router.push("/auth/login");
   };
 
   return (
     <div className="min-h-screen bg-white">
       {/* Sidebar */}
-      <aside className={`w-64 md:w-72 bg-[#1a1a1a] fixed h-full transition-transform duration-300 ease-in-out z-40 border-r border-white/10 ${showSidebar ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
+      <aside
+        className={`w-64 md:w-72 bg-[#1a1a1a] fixed h-full transition-transform duration-300 ease-in-out z-40 border-r border-white/10 ${
+          showSidebar ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
+        }`}
+      >
         <div className="flex flex-col h-full">
           {/* Logo */}
           <div className="p-6 border-b border-white/10">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#dd7109] to-[#ff9f4d] flex items-center justify-center">
-                <Wallet className="w-6 h-6 text-white" />
-              </div>
-              <span className="text-xl font-bold text-white">SecureAcompte</span>
+            <div className="flex flex-col items-center gap-3">
+              <Image
+                src="/logo-blanc-sf.svg" // Chemin vers ton logo dans /public
+                alt="Logo SecureAcompte"
+                width={200}
+                height={40}
+                className="rounded-xl"
+              />
             </div>
           </div>
 
@@ -123,12 +129,19 @@ export default function ClientDashboardLayout({
                   <li key={item.href}>
                     <Link
                       href={item.href}
-                      className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 group ${isActive
-                          ? 'bg-[#dd7109] text-white'
-                          : 'text-gray-400 hover:bg-white/5 hover:text-white'
-                        }`}
+                      className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 group ${
+                        isActive
+                          ? "bg-[#dd7109] text-white"
+                          : "text-gray-400 hover:bg-white/5 hover:text-white"
+                      }`}
                     >
-                      <item.icon className={`w-5 h-5 ${isActive ? 'text-white' : 'text-gray-400 group-hover:text-white'}`} />
+                      <item.icon
+                        className={`w-5 h-5 ${
+                          isActive
+                            ? "text-white"
+                            : "text-gray-400 group-hover:text-white"
+                        }`}
+                      />
                       <span>{item.label}</span>
                     </Link>
                   </li>
@@ -151,11 +164,22 @@ export default function ClientDashboardLayout({
                   height={70}
                   className="w-[70px] h-[70px] rounded-full object-cover border-2 border-orange-200"
                 />
-              ) : (<div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#dd7109] to-[#ff9f4d] flex items-center justify-center">
-                <span className="font-semibold text-white">{profile?.firstName?.[0] || ''}{profile?.lastName?.[0] || ''}</span>
-              </div>)}
+              ) : (
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#dd7109] to-[#ff9f4d] flex items-center justify-center">
+                  <span className="font-semibold text-white">
+                    {profile?.firstName?.[0] || ""}
+                    {profile?.lastName?.[0] || ""}
+                  </span>
+                </div>
+              )}
               <div className="flex-1 text-left">
-                <p className="font-medium text-white">{profile ? `${profile.firstName || ''} ${profile.lastName || ''}`.trim() : user?.email}</p>
+                <p className="font-medium text-white">
+                  {profile
+                    ? `${profile.firstName || ""} ${
+                        profile.lastName || ""
+                      }`.trim()
+                    : user?.email}
+                </p>
                 <p className="text-sm text-gray-400">Client</p>
               </div>
               <ChevronDown className="w-4 h-4 text-gray-400 group-hover:text-white" />
@@ -217,7 +241,11 @@ export default function ClientDashboardLayout({
                   <User className="w-4 h-4 text-white" />
                 </div>
                 <span className="text-sm font-medium text-gray-900">
-                  {profile ? `${profile.firstName || ''} ${profile.lastName || ''}`.trim() : user?.email}
+                  {profile
+                    ? `${profile.firstName || ""} ${
+                        profile.lastName || ""
+                      }`.trim()
+                    : user?.email}
                 </span>
                 <ChevronDown className="w-4 h-4 text-gray-400" />
               </button>
@@ -240,8 +268,9 @@ export default function ClientDashboardLayout({
               <Link
                 key={item.href}
                 href={item.href}
-                className={`flex flex-col items-center justify-center w-full h-full transition-colors ${isActive ? 'text-[#dd7109]' : 'text-gray-400'
-                  }`}
+                className={`flex flex-col items-center justify-center w-full h-full transition-colors ${
+                  isActive ? "text-[#dd7109]" : "text-gray-400"
+                }`}
                 onClick={() => setShowSidebar(false)}
               >
                 <item.icon className="w-5 h-5" />
@@ -251,8 +280,9 @@ export default function ClientDashboardLayout({
           })}
           <button
             onClick={() => setShowBottomMenu(!showBottomMenu)}
-            className={`flex flex-col items-center justify-center w-full h-full transition-colors ${showBottomMenu ? 'text-[#dd7109]' : 'text-gray-400'
-              }`}
+            className={`flex flex-col items-center justify-center w-full h-full transition-colors ${
+              showBottomMenu ? "text-[#dd7109]" : "text-gray-400"
+            }`}
           >
             <Menu className="w-5 h-5" />
             <span className="text-xs mt-1">Plus</span>
@@ -289,8 +319,11 @@ export default function ClientDashboardLayout({
                   <Link
                     key={item.href}
                     href={item.href}
-                    className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${isActive ? 'bg-[#dd7109] text-white' : 'text-gray-400 hover:bg-white/5 hover:text-white'
-                      }`}
+                    className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+                      isActive
+                        ? "bg-[#dd7109] text-white"
+                        : "text-gray-400 hover:bg-white/5 hover:text-white"
+                    }`}
                     onClick={() => setShowBottomMenu(false)}
                   >
                     <item.icon className="w-5 h-5" />

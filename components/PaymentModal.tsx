@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import React, { useState, useEffect } from "react";
 import type { ProjectPayment } from "@/hooks/payments";
 import { updatePaymentValidationInfo } from "@/hooks/payments";
 
@@ -27,6 +27,14 @@ export default function PaymentModal({ open, onClose, payment }: PaymentModalPro
   const [formSuccess, setFormSuccess] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
+  useEffect(() => {
+    if (open) {
+      setFormSuccess(null);
+      setShowValidationForm(false);
+      setFormError(null);
+    }
+  }, [open, payment?.id]);
+
   if (!open || !payment) return null;
 
   const handleCopyIban = () => {
@@ -46,6 +54,7 @@ export default function PaymentModal({ open, onClose, payment }: PaymentModalPro
           ×
         </button>
         <h3 className="text-lg font-semibold mb-2">Payer l&apos;acompte</h3>
+        <div className="max-h-[60vh] overflow-y-auto">
         <div className="mb-4">
           <div className="text-base font-medium text-gray-900 mb-1">{payment.title}</div>
           <div className="text-sm text-gray-500 mb-1">{payment.date}</div>
@@ -75,7 +84,7 @@ export default function PaymentModal({ open, onClose, payment }: PaymentModalPro
           </div>
         </div>
         <div className="pt-6">
-          {!showValidationForm && (
+          {!showValidationForm && !formSuccess && (
             <button
               className="px-4 py-2 rounded-xl bg-green-600 text-white font-medium"
               onClick={() => setShowValidationForm(true)}
@@ -187,6 +196,7 @@ export default function PaymentModal({ open, onClose, payment }: PaymentModalPro
           {formSuccess && (
             <div className="text-green-600 font-semibold mt-4">{formSuccess}</div>
           )}
+        </div>
         </div>
       </div>
     </div>

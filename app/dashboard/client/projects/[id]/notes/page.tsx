@@ -297,7 +297,7 @@ export default function ProjectNotesPage() {
                   <button 
                     className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors opacity-0 group-hover:opacity-100"
                     title="Plus d'options"
-                    aria-label="Options de la note"
+                    aria-label="Option de la note"
                   >
                     <MoreHorizontal className="w-4 h-4" />
                   </button>
