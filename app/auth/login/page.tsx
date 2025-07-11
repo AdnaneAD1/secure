@@ -262,10 +262,10 @@ export default function LoginPage() {
       </div>
 
       {/* Right Side - Image */}
-      <div className="hidden lg:block lg:w-1/2 relative">
-        <div className="absolute inset-0 bg-gradient-to-br from-[#dd7109]/20 to-transparent z-10" />
+      <div className="hidden lg:block lg:w-1/2 relative h-screen">
+        <div className="absolute w-full inset-0 bg-gradient-to-br from-[#dd7109]/20 to-transparent z-10" />
         <Image
-          src="https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80"
+          src="/IMG_3821.png"
           alt="Office interior"
           fill
           className="object-cover"
