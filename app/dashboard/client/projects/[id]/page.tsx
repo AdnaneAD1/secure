@@ -52,6 +52,7 @@ export default function ProjectDetailsPage({ params }: { params: { id: string } 
     } else {
       setDevis([]);
     }
+    console.log(devis);
   }, [project?.id]);
 
   if (!project) {

@@ -58,7 +58,7 @@ export default function LoginPage() {
       <div className="w-full lg:w-1/2 flex items-center justify-center p-8 lg:p-16">
         <div className="w-full max-w-md space-y-8 animate-fade-in">
           {/* Logo */}
-          <div className="flex justify-center">
+          <div className="flex">
             <Image
               src="/logo-blanc-sf.svg" // Chemin vers ton logo dans /public
               alt="Logo SecureAcompte"

@@ -6,7 +6,12 @@ export interface AcceptedArtisan {
   artisanId: string;
   displayName: string;
   email: string;
+<<<<<<< Updated upstream
   specialite: string;
+=======
+  metier: string;
+
+>>>>>>> Stashed changes
 }
 
 export function useAcceptedArtisans(projectId: string) {
@@ -32,7 +37,11 @@ export function useAcceptedArtisans(projectId: string) {
             artisanId: id,
             displayName: data?.displayName || data?.firstName + ' ' + (data?.lastName || '') || id,
             email: data?.email || '',
+<<<<<<< Updated upstream
             specialite: data?.specialite || '',
+=======
+            metier: data?.specialite || '',
+>>>>>>> Stashed changes
           };
         });
         const results = await Promise.all(promises);
