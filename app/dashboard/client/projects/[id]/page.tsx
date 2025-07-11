@@ -285,7 +285,7 @@ export default function ProjectDetailsPage({ params }: { params: { id: string } 
                       </div>
                       <div>
                         <p className="font-medium text-gray-800">{a.displayName}</p>
-                        <p className="text-xs text-gray-500">{a.metier || 'Artisan'}</p>
+                        <p className="text-xs text-gray-500">{a.specialite || 'Artisan'}</p>
                       </div>
                     </div>
                   ))}

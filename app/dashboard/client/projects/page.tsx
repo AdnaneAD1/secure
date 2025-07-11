@@ -100,25 +100,25 @@ export default function ProjectsPage() {
     {
       title: "Projets actifs",
       value: activeProjects.toString(),
-      icon: <CheckCircle className="w-6 h-6 text-emerald-600" />, 
+      icon: <CheckCircle className="w-6 h-6 text-emerald-600" />,
       color: "bg-emerald-50 text-emerald-700"
     },
     {
       title: "Budget total",
       value: totalBudget.toLocaleString() + " €",
-      icon: <CreditCard className="w-6 h-6 text-[#dd7109]" />, 
+      icon: <CreditCard className="w-6 h-6 text-[#dd7109]" />,
       color: "bg-orange-50 text-[#dd7109]"
     },
     {
       title: "Montant versé",
       value: totalPaid.toLocaleString() + " €",
-      icon: <ArrowUpRight className="w-6 h-6 text-blue-600" />, 
+      icon: <ArrowUpRight className="w-6 h-6 text-blue-600" />,
       color: "bg-blue-50 text-blue-700"
     },
     {
       title: "Avancement moyen",
       value: avgProgress + "%",
-      icon: <Clock className="w-6 h-6 text-amber-500" />, 
+      icon: <Clock className="w-6 h-6 text-amber-500" />,
       color: "bg-amber-50 text-amber-700"
     }
   ];
@@ -196,8 +196,8 @@ export default function ProjectsPage() {
                 <button
                   onClick={() => setActiveFilter("all")}
                   className={`px-4 py-2 rounded-xl transition-all text-sm font-medium ${activeFilter === "all"
-                      ? 'bg-[#dd7109] text-white'
-                      : 'text-gray-700 hover:bg-gray-100 border border-gray-200'
+                    ? 'bg-[#dd7109] text-white'
+                    : 'text-gray-700 hover:bg-gray-100 border border-gray-200'
                     }`}
                 >
                   Tous
@@ -205,8 +205,8 @@ export default function ProjectsPage() {
                 <button
                   onClick={() => setActiveFilter("in_progress")}
                   className={`px-4 py-2 rounded-xl transition-all text-sm font-medium ${activeFilter === "in_progress"
-                      ? 'bg-[#dd7109] text-white'
-                      : 'text-gray-700 hover:bg-gray-100 border border-gray-200'
+                    ? 'bg-[#dd7109] text-white'
+                    : 'text-gray-700 hover:bg-gray-100 border border-gray-200'
                     }`}
                 >
                   En cours
@@ -214,8 +214,8 @@ export default function ProjectsPage() {
                 <button
                   onClick={() => setActiveFilter("pending")}
                   className={`px-4 py-2 rounded-xl transition-all text-sm font-medium ${activeFilter === "pending"
-                      ? 'bg-[#dd7109] text-white'
-                      : 'text-gray-700 hover:bg-gray-100 border border-gray-200'
+                    ? 'bg-[#dd7109] text-white'
+                    : 'text-gray-700 hover:bg-gray-100 border border-gray-200'
                     }`}
                 >
                   En attente
@@ -223,8 +223,8 @@ export default function ProjectsPage() {
                 <button
                   onClick={() => setActiveFilter("completed")}
                   className={`px-4 py-2 rounded-xl transition-all text-sm font-medium ${activeFilter === "completed"
-                      ? 'bg-[#dd7109] text-white'
-                      : 'text-gray-700 hover:bg-gray-100 border border-gray-200'
+                    ? 'bg-[#dd7109] text-white'
+                    : 'text-gray-700 hover:bg-gray-100 border border-gray-200'
                     }`}
                 >
                   Terminés
@@ -282,10 +282,10 @@ export default function ProjectsPage() {
                       <p className="text-gray-500 mt-1">{project.description}</p>
                     </div>
                     <span className={`px-3 py-1 rounded-full text-sm font-medium ${project.status === "En cours"
-                        ? "bg-green-100 text-green-700"
-                        : project.status === "En attente"
-                          ? "bg-amber-100 text-amber-700"
-                          : "bg-gray-100 text-gray-700"
+                      ? "bg-green-100 text-green-700"
+                      : project.status === "En attente"
+                        ? "bg-amber-100 text-amber-700"
+                        : "bg-gray-100 text-gray-700"
                       }`}>
                       {project.status}
                     </span>
@@ -342,9 +342,13 @@ export default function ProjectsPage() {
                     </div>
                   </div>
                   <div className="mt-4">
-                    <button className="w-full px-4 py-2 bg-[#dd7109] text-white rounded-lg hover:bg-[#dd7109]/90 transition-colors">
+                    <a
+                      href={project.broker.phone ? `tel:${project.broker.phone}` : undefined}
+                      className="w-full px-4 py-2 bg-[#dd7109] text-white rounded-lg hover:bg-[#dd7109]/90 transition-colors flex flex-col items-center justify-center"
+                      style={{ pointerEvents: project.broker.phone ? 'auto' : 'none', opacity: project.broker.phone ? 1 : 0.6 }}
+                    >
                       Contacter
-                    </button>
+                    </a>
                   </div>
                 </div>
               </div>

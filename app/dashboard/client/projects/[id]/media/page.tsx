@@ -9,7 +9,7 @@ import { useSettings } from "@/hooks/settings";
 import MediaCard from "./MediaCard";
 import { ChevronLeft, Search, X, Filter, CheckCircle, XCircle, GalleryHorizontal } from "lucide-react";
 
-function Modal({ open, onClose, children, Image }: { open: boolean; onClose: () => void; children: React.ReactNode }) {
+function Modal({ open, onClose, children }: { open: boolean; onClose: () => void; children: React.ReactNode }) {
   if (!open) return null;
   return (
     <div className="fixed z-50 inset-0 bg-black/30 flex items-center justify-center p-4" onClick={onClose}>

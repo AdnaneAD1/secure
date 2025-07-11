@@ -25,7 +25,6 @@ const config: Config = {
       colors: {
         background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',
-        primary: '#dd7109',
         primaryLight: '#fef7f0',
         primaryDark: '#c46208', // Pour les états hover
         card: {

@@ -6,6 +6,7 @@ export interface AcceptedArtisan {
   artisanId: string;
   displayName: string;
   email: string;
+  specialite: string;
 }
 
 export function useAcceptedArtisans(projectId: string) {
@@ -31,6 +32,7 @@ export function useAcceptedArtisans(projectId: string) {
             artisanId: id,
             displayName: data?.displayName || data?.firstName + ' ' + (data?.lastName || '') || id,
             email: data?.email || '',
+            specialite: data?.specialite || '',
           };
         });
         const results = await Promise.all(promises);
