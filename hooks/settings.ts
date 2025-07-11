@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { db, auth } from "@/firebase/ClientApp";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { updateEmail as fbUpdateEmail, updatePassword as fbUpdatePassword, sendPasswordResetEmail, User as FirebaseUser } from "firebase/auth";
@@ -8,8 +8,8 @@ export function useSettings(uid: string) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Charger le profil utilisateur
-  const fetchProfile = async () => {
+  // Charger le profil utilisateur (Firebase Auth + Firestore)
+  const fetchProfile = useCallback(async () => {
     setLoading(true);
     try {
       const snap = await getDoc(doc(db, "users", uid));
@@ -18,7 +18,7 @@ export function useSettings(uid: string) {
       setError(err.message);
     }
     setLoading(false);
-  };
+  }, [uid]);
 
   // Mettre à jour le profil utilisateur
   const updateProfile = async (data: Partial<any>) => {
