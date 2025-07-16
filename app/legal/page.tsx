@@ -174,14 +174,14 @@ export default function LegalPage() {
                 <div>
                   <p><strong>Dénomination sociale :</strong> AXIMOTRAVO</p>
                   <p><strong>Forme juridique :</strong> Société par Actions Simplifiée (SAS)</p>
-                  <p><strong>Capital social :</strong> 10 000 €</p>
-                  <p><strong>Siège social :</strong> 123 Avenue des Champs-Élysées, 75008 Paris</p>
+                  <p><strong>Capital social :</strong> 5 000 €</p>
+                  <p><strong>Siège social :</strong> 1 PLACE DU VILLAGE, 65240 ASPIN-AURE France</p>
                 </div>
                 <div>
-                  <p><strong>RCS :</strong> Paris B 123 456 789</p>
-                  <p><strong>TVA intracommunautaire :</strong> FR 12 345678901</p>
+                  <p><strong>RCS :</strong> Tarbes B 815247812</p>
+                  <p><strong>TVA intracommunautaire :</strong> FR 95815247812</p>
                   <p><strong>Email :</strong> contact@aximotravo.com</p>
-                  <p><strong>Téléphone :</strong> +33 1 23 45 67 89</p>
+                  <p><strong>Téléphone :</strong> +33 811 38 65 65</p>
                 </div>
               </div>
             </div>
@@ -195,12 +195,12 @@ export default function LegalPage() {
               <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-6 text-gray-700">
                 <div>
                   <p><strong>Nom :</strong> LWS (Ligne Web Services)</p>
-                  <p><strong>Adresse :</strong> 140, quai du Sartel - 59100 Roubaix</p>
-                  <p><strong>Téléphone :</strong> +33 (0)8 99 70 12 34</p>
+                  <p><strong>Adresse :</strong> 10, RUE PENTHIEVRE 75008 PARIS FRANCE</p>
+                  <p><strong>Téléphone :</strong> +33 177 62 30 03</p>
                 </div>
                 <div>
                   <p><strong>Site web :</strong> https://www.lws.fr</p>
-                  <p><strong>SIRET :</strong> 123 456 789 00010</p>
+                  <p><strong>SIRET :</strong> 85199368300024</p>
                   <p><strong>Code APE :</strong> 6311Z</p>
                 </div>
               </div>
@@ -272,7 +272,7 @@ export default function LegalPage() {
                   <div>
                     <p className="font-medium">Téléphone</p>
                     <a href="tel:+33123456789" className="hover:underline">
-                      +33 1 23 45 67 89
+                     +33 811 38 65 65
                     </a>
                   </div>
                 </div>
@@ -280,7 +280,7 @@ export default function LegalPage() {
                   <MapPin className="w-5 h-5 text-[#dd7109] mt-1" />
                   <div>
                     <p className="font-medium">Adresse</p>
-                    <p>123 Avenue des Champs-Élysées<br />75008 Paris</p>
+                    <p>1 PLACE DU VILLAGE<br />65240 ASPIN-AURE France</p>
                   </div>
                 </div>
               </div>
@@ -334,15 +334,14 @@ export default function LegalPage() {
               <h3 className="text-xl font-semibold mb-6">Liens rapides</h3>
               <ul className="space-y-4">
                 {[
-                  "Accueil",
-                  "À propos",
-                  "Connexion",
-                  "Politique de confidentialité"
+                  { label: "Accueil", href: "/" },
+                  { label: "Mentions légales", href: "/legal" },
+                  { label: "Politique de confidentialité", href: "/privacy" },
                 ].map((item, index) => (
                   <li key={index}>
-                    <a href="#" className="hover:text-[#dd7109] transition-colors">
-                      {item}
-                    </a>
+                    <Link href={item.href} className="hover:text-[#dd7109] transition-colors">
+                      {item.label}
+                    </Link>
                   </li>
                 ))}
               </ul>

@@ -260,7 +260,7 @@ export default function LegalPage() {
                   <div>
                     <p className="font-medium">Téléphone</p>
                     <a href="tel:+33123456789" className="hover:underline">
-                      +33 1 23 45 67 89
+                    +33 811 38 65 65
                     </a>
                   </div>
                 </div>
@@ -268,7 +268,7 @@ export default function LegalPage() {
                   <MapPin className="w-5 h-5 text-[#dd7109] mt-1" />
                   <div>
                     <p className="font-medium">Adresse</p>
-                    <p>123 Avenue des Champs-Élysées<br />75008 Paris</p>
+                    <p>1 PLACE DU VILLAGE<br />65240 ASPIN-AURE France</p>
                   </div>
                 </div>
               </div>
@@ -322,15 +322,14 @@ export default function LegalPage() {
               <h3 className="text-xl font-semibold mb-6">Liens rapides</h3>
               <ul className="space-y-4">
                 {[
-                  "Accueil",
-                  "À propos",
-                  "Connexion",
-                  "Politique de confidentialité"
+                  { label: "Accueil", href: "/" },
+                  { label: "Mentions légales", href: "/legal" },
+                  { label: "Politique de confidentialité", href: "/privacy" },
                 ].map((item, index) => (
                   <li key={index}>
-                    <a href="#" className="hover:text-[#dd7109] transition-colors">
-                      {item}
-                    </a>
+                    <Link href={item.href} className="hover:text-[#dd7109] transition-colors">
+                      {item.label}
+                    </Link>
                   </li>
                 ))}
               </ul>

@@ -118,7 +118,7 @@ export default function PrivacyPage() {
         <div className="space-y-4">
           <a href="tel:+33123456789" className="flex items-center space-x-3 text-[#1a1a1a] hover:text-[#dd7109] transition-colors">
             <Phone className="h-5 w-5" />
-            <span className="text-sm">+33 1 23 45 67 89</span>
+            <span className="text-sm">+33 811 38 65 65</span>
           </a>
           <a href="mailto:contact@secureacomptetravaux.com" className="flex items-center space-x-3 text-[#1a1a1a] hover:text-[#dd7109] transition-colors">
             <Mail className="h-5 w-5" />
@@ -126,7 +126,7 @@ export default function PrivacyPage() {
           </a>
           <a href="https://maps.google.com" target="_blank" rel="noopener noreferrer" className="flex items-center space-x-3 text-[#1a1a1a] hover:text-[#dd7109] transition-colors">
             <MapPin className="h-5 w-5" />
-            <span className="text-sm">123 Avenue des Champs-Élysées, Paris</span>
+            <span className="text-sm">1 PLACE DU VILLAGE, 65240 ASPIN-AURE France</span>
           </a>
         </div>
 
@@ -282,7 +282,7 @@ export default function PrivacyPage() {
                 <div className="flex items-center gap-3">
                   <Phone className="w-5 h-5 text-[#dd7109]" />
                   <a href="tel:+33123456789" className="hover:underline">
-                    +33 1 23 45 67 89
+                  +33 811 38 65 65
                   </a>
                 </div>
               </div>
@@ -336,15 +336,14 @@ export default function PrivacyPage() {
               <h3 className="text-xl font-semibold mb-6">Liens rapides</h3>
               <ul className="space-y-4">
                 {[
-                  "Accueil",
-                  "À propos",
-                  "Connexion",
-                  "Politique de confidentialité"
+                  { label: "Accueil", href: "/" },
+                  { label: "Mentions légales", href: "/legal" },
+                  { label: "Politique de confidentialité", href: "/privacy" },           
                 ].map((item, index) => (
                   <li key={index}>
-                    <a href="#" className="hover:text-[#dd7109] transition-colors">
-                      {item}
-                    </a>
+                    <Link href={item.href} className="hover:text-[#dd7109] transition-colors">
+                      {item.label}
+                    </Link>
                   </li>
                 ))}
               </ul>
