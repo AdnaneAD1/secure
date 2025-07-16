@@ -1,11 +1,11 @@
 "use client";
 import { useState, useEffect } from "react";
-import { 
-  Wallet, 
-  Building2, 
-  Users, 
-  ArrowRight, 
-  CheckCircle, 
+import {
+  Wallet,
+  Building2,
+  Users,
+  ArrowRight,
+  CheckCircle,
   Shield,
   Phone,
   Mail,
@@ -39,8 +39,8 @@ export default function Home() {
   }, []);
 
 
-// En haut de votre fichier
-<style jsx global>{`
+  // En haut de votre fichier
+  <style jsx global>{`
   html, body {
     overflow-x: hidden;
     margin: 0;
@@ -54,7 +54,7 @@ export default function Home() {
       <nav className={`fixed w-full z-50 transition-all duration-300 ${isScrolled ? 'bg-white shadow-md' : 'bg-transparent'}`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-20">
-            
+
             {/* Logo dynamique responsive */}
             <div className="flex-shrink-0">
               <Link href="/" aria-label="Accueil">
@@ -96,7 +96,7 @@ export default function Home() {
         {/* Mobile Menu */}
         <div className={`fixed inset-0 bg-white lg:hidden transition-transform duration-300 ease-in-out ${showMobileMenu ? 'translate-x-0' : 'translate-x-full'}`}>
           <div className="flex flex-col h-full">
-            
+
             {/* Header */}
             <div className="flex items-center justify-between p-6 border-b border-gray-200">
               <Link href="/" className="flex-shrink-0" onClick={() => setShowMobileMenu(false)} aria-label="Accueil">
@@ -185,7 +185,7 @@ export default function Home() {
           <div className="absolute bottom-40 right-[10%] w-48 h-48 border border-white/5 rounded-full animate-circle-float" />
           <div className="absolute top-40 right-[30%] w-24 h-24 border border-white/5 rounded-full animate-pulse-slow" />
           <div className="absolute top-1/2 right-[15%] -translate-y-1/2 w-[600px] h-[600px] border border-white/5 rounded-full animate-spin-slow opacity-30" />
-          <div 
+          <div
             className="absolute top-1/2 right-[15%] -translate-y-1/2 w-[500px] h-[500px] border border-[#dd7109]/10 rounded-full animate-spin-slow opacity-20"
             style={{ animationDirection: 'reverse' }}
           />
@@ -209,15 +209,15 @@ export default function Home() {
                 Gérez efficacement vos acomptes clients, automatisez la répartition des commissions et suivez vos paiements en temps réel.
               </p>
               <div className="space-y-6">
-              <Link href="https://app.secureacomptetravaux.com/auth/login" passHref>
-      <button 
-        className="group inline-flex items-center px-6 sm:px-8 py-3 sm:py-4 bg-[#dd7109] text-white font-semibold rounded-full hover:bg-[#dd7109]/90 transition-all duration-300 animate-fade-in"
-        aria-label="Commencer maintenant"
-      >
-        Commencer maintenant
-        <ArrowRight className="ml-2 h-5 w-5 transition-transform duration-300 group-hover:translate-x-1" />
-      </button>
-    </Link>
+                <Link href="https://app.secureacomptetravaux.com/auth/login" passHref>
+                  <button
+                    className="group inline-flex items-center px-6 sm:px-8 py-3 sm:py-4 bg-[#dd7109] text-white font-semibold rounded-full hover:bg-[#dd7109]/90 transition-all duration-300 animate-fade-in"
+                    aria-label="Commencer maintenant"
+                  >
+                    Commencer maintenant
+                    <ArrowRight className="ml-2 h-5 w-5 transition-transform duration-300 group-hover:translate-x-1" />
+                  </button>
+                </Link>
                 <div className="relative w-fit mx-auto lg:mx-0 animate-slide-up">
                   <div className="relative bg-[#262626]/40 backdrop-blur-xl rounded-2xl px-4 py-2 border border-white/10">
                     <div className="flex items-center gap-3">
@@ -230,31 +230,31 @@ export default function Home() {
             </div>
 
             <div className="relative w-full lg:w-[40%] flex justify-center lg:justify-end">
-  <div className="relative w-full max-w-md sm:max-w-sm md:max-w-md lg:w-[400px] aspect-[3/4] rounded-3xl overflow-hidden shadow-xl border border-white/10 animate-fade-in">
-    <Image
-      src="/img/hero.png"
-      alt="Professionnelle souriante"
-      fill
-      className="object-cover object-top"
-      priority
-    />
-  </div>
-  
+              <div className="relative w-full max-w-md sm:max-w-sm md:max-w-md lg:w-[400px] aspect-[3/4] rounded-3xl overflow-hidden shadow-xl border border-white/10 animate-fade-in">
+                <Image
+                  src="/img/hero.png"
+                  alt="Professionnelle souriante"
+                  fill
+                  className="object-cover object-top"
+                  priority
+                />
+              </div>
 
-  {/* Carte stats */}
-  <div className="absolute bottom-0 left-0 translate-y-1/2 bg-white rounded-2xl p-4 shadow-lg w-64 animate-float hidden sm:block">
-    <div className="grid grid-cols-2 gap-4">
-      <div className="text-center">
-        <p className="text-gray-600 text-sm mb-1">Satisfaction client</p>
-        <p className="text-[#dd7109] text-2xl font-bold">98%</p>
-      </div>
-      <div className="text-center border-l border-gray-200">
-        <p className="text-gray-600 text-sm mb-1">Transactions</p>
-        <p className="text-[#dd7109] text-2xl font-bold">€1M+</p>
-      </div>
-    </div>
-  </div>
-</div>
+
+              {/* Carte stats */}
+              <div className="absolute bottom-0 left-0 translate-y-1/2 bg-white rounded-2xl p-4 shadow-lg w-64 animate-float hidden sm:block">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="text-center">
+                    <p className="text-gray-600 text-sm mb-1">Satisfaction client</p>
+                    <p className="text-[#dd7109] text-2xl font-bold">98%</p>
+                  </div>
+                  <div className="text-center border-l border-gray-200">
+                    <p className="text-gray-600 text-sm mb-1">Transactions</p>
+                    <p className="text-[#dd7109] text-2xl font-bold">€1M+</p>
+                  </div>
+                </div>
+              </div>
+            </div>
 
 
 
@@ -390,31 +390,31 @@ export default function Home() {
                 delay: 0.6
               }
             ].map((step, index) => (
-<div
-  key={index}
-  className={`text-center group ${index < 3 ? 'step-item' : ''}`}
->
-  <div className="w-20 h-20 mx-auto bg-white rounded-full shadow-lg flex items-center justify-center mb-6 relative transition-transform group-hover:scale-110 duration-300">
-    <div
-      className="absolute inset-0 bg-[#dd7109]/5 rounded-full animate-pulse"
-      style={{ animationDelay: `${step.delay}s` }}
-    />
-    <step.icon
-      className="w-8 h-8 text-[#dd7109] animate-process-icon"
-      style={{ animationDelay: `${step.delay}s` }}
-    />
-  </div>
+              <div
+                key={index}
+                className={`text-center group ${index < 3 ? 'step-item' : ''}`}
+              >
+                <div className="w-20 h-20 mx-auto bg-white rounded-full shadow-lg flex items-center justify-center mb-6 relative transition-transform group-hover:scale-110 duration-300">
+                  <div
+                    className="absolute inset-0 bg-[#dd7109]/5 rounded-full animate-pulse"
+                    style={{ animationDelay: `${step.delay}s` }}
+                  />
+                  <step.icon
+                    className="w-8 h-8 text-[#dd7109] animate-process-icon"
+                    style={{ animationDelay: `${step.delay}s` }}
+                  />
+                </div>
 
-  {/* Points visibles uniquement à partir de md */}
-  <div className="hidden md:block process-dot process-dot-start" />
-  {index < 3 && <div className="hidden md:block process-dot process-dot-end" />}
+                {/* Points visibles uniquement à partir de md */}
+                <div className="hidden md:block process-dot process-dot-start" />
+                {index < 3 && <div className="hidden md:block process-dot process-dot-end" />}
 
-  <div className="text-[#dd7109] text-6xl font-bold opacity-20 mb-4 group-hover:opacity-30 transition-opacity">
-    {step.number}
-  </div>
-  <h3 className="text-xl font-semibold mb-2">{step.title}</h3>
-  <p className="text-gray-600">{step.description}</p>
-</div>
+                <div className="text-[#dd7109] text-6xl font-bold opacity-20 mb-4 group-hover:opacity-30 transition-opacity">
+                  {step.number}
+                </div>
+                <h3 className="text-xl font-semibold mb-2">{step.title}</h3>
+                <p className="text-gray-600">{step.description}</p>
+              </div>
 
 
 
@@ -431,11 +431,11 @@ export default function Home() {
           <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-[#dd7109]/10 to-transparent" />
           <div className="absolute bottom-0 right-0 w-full h-full bg-gradient-to-tl from-[#dd7109]/5 to-transparent" />
           <div className="absolute left-10 top-10 w-64 h-64 border border-[#dd7109]/10 rounded-full animate-spin-slow" />
-          <div 
+          <div
             className="absolute right-10 bottom-10 w-48 h-48 border border-[#dd7109]/5 rounded-full animate-spin-slow"
             style={{ animationDirection: 'reverse' }}
           />
-          <div 
+          <div
             className="absolute inset-0"
             style={{
               background: 'radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 3px)',
@@ -525,7 +525,7 @@ export default function Home() {
                   "Support client 24/7"
                 ].map((item, index) => (
                   <li key={index} className="flex items-center gap-3 text-gray-600">
-                    <CheckCircle 
+                    <CheckCircle
                       className="w-5 h-5 text-[#dd7109] animate-pulse"
                       style={{ animationDelay: `${index * 0.2}s` }}
                     />
@@ -560,7 +560,7 @@ export default function Home() {
                   }
                 ].map((item, index) => (
                   <div key={index} className="relative pl-20 group">
-                    <div 
+                    <div
                       className="timeline-dot"
                       style={{
                         left: '1.85rem',
@@ -568,14 +568,14 @@ export default function Home() {
                         animationDelay: `${index * 0.3}s`
                       }}
                     />
-                    <div 
+                    <div
                       className="absolute left-6 top-0 -translate-x-1/2 w-12 h-12 rounded-full bg-white border-2 border-[#dd7109] flex items-center justify-center text-[#dd7109] font-bold feature-number"
                       style={{ animationDelay: `${index * 0.2}s` }}
                     >
                       {String(index + 1).padStart(2, '0')}
                     </div>
                     <div className="flex gap-6 items-start">
-                      <div 
+                      <div
                         className="w-16 h-16 rounded-full bg-[#dd7109]/10 flex items-center justify-center flex-shrink-0 feature-icon"
                         style={{ animationDelay: `${index * 0.2}s` }}
                       >
@@ -663,7 +663,7 @@ export default function Home() {
               ].map((faq, index) => (
                 <div key={index} className="group">
                   <div className="border border-gray-200 rounded-2xl hover:border-[#dd7109]/30 transition-colors">
-                    <button className="flex items-center justify-between w-full p-6 text-left" aria-expanded="false" aria-controls={`faq-${index+2}`}>
+                    <button className="flex items-center justify-between w-full p-6 text-left" aria-expanded="false" aria-controls={`faq-${index + 2}`}>
                       <div className="flex items-center gap-4">
                         <div className="w-10 h-10 rounded-full bg-[#dd7109]/10 flex items-center justify-center flex-shrink-0">
                           <faq.icon className="w-5 h-5 text-[#dd7109]" />
@@ -672,7 +672,7 @@ export default function Home() {
                       </div>
                       <ArrowRight className="w-5 h-5 text-[#dd7109] group-hover:rotate-90 transition-transform duration-200" />
                     </button>
-                    <div id={`faq-${index+2}`} className="px-6 pb-6">
+                    <div id={`faq-${index + 2}`} className="px-6 pb-6">
                       <p className="text-gray-600">{faq.answer}</p>
                     </div>
                   </div>
@@ -690,15 +690,15 @@ export default function Home() {
             <div className="space-y-6">
               <div className="flex items-center gap-2">
                 <Link href="/" className="flex-shrink-0" onClick={() => setShowMobileMenu(false)} aria-label="Accueil">
-                <Image
-                  src="/img/logo blanc sf.svg"
-                  alt="Logo Secure Acompte Travaux"
-                  width={500}
-                  height={120}
-                  className="h-12 sm:h-14 md:h-16 w-auto"
-                  priority
-                />
-              </Link>
+                  <Image
+                    src="/img/logo blanc sf.svg"
+                    alt="Logo Secure Acompte Travaux"
+                    width={500}
+                    height={120}
+                    className="h-12 sm:h-14 md:h-16 w-auto"
+                    priority
+                  />
+                </Link>
               </div>
               <div className="space-y-4">
                 <div className="flex items-center gap-3">
@@ -727,22 +727,25 @@ export default function Home() {
             <div>
               <h3 className="text-xl font-semibold mb-6">Liens rapides</h3>
               <ul className="space-y-4">
-                {[
-                  "Accueil",
-                  "À propos",
-                  "Connexion",
-                  "Politique de confidentialité"
-                ].map((item, index) => (
-                  <li key={index}>
-                    <a href="#" className="hover:text-[#dd7109] transition-colors">
-                      {item}
-                    </a>
-                  </li>
-                ))}
+                <li>
+                  <a href="/" className="hover:text-[#dd7109] transition-colors">
+                    Accueil
+                  </a>
+                </li>
+                <li>
+                  <a href="https://app.secureacomptetravaux.com" className="hover:text-[#dd7109] transition-colors">
+                    Connexion
+                  </a>
+                </li>
+                <li>
+                  <a href="https://app.secureacomptetravaux.com" className="hover:text-[#dd7109] transition-colors">
+                    Inscription
+                  </a>
+                </li>
               </ul>
             </div>
 
-           <div>
+            <div>
               <h3 className="text-xl font-semibold mb-6">Nos services</h3>
               <ul className="space-y-4">
                 {[
