@@ -15,7 +15,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const response = await axios({
       method: 'post',
       maxBodyLength: Infinity,
-      url: 'https://merchant.revolut.com/api/orders',
+      url: 'https://sandbox-merchant.revolut.com/api/orders',
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
