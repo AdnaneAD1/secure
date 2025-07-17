@@ -41,6 +41,18 @@ export async function fetchRevolutOrderStatus(orderId: string) {
         revolut_state: data.state,
         revolut_updated_at: new Date().toISOString()
       });
+
+      // Si paiement validé, mettre à jour le statut du projet associé si "En attente"
+      if (newStatus === "validé" && paymentDoc.data().projectId) {
+        const projectRef = fsDoc(db, "projects", paymentDoc.data().projectId);
+        const projectSnap = await getDocs(query(collection(db, "projects"), where("id", "==", paymentDoc.data().projectId)));
+        if (!projectSnap.empty) {
+          const project = projectSnap.docs[0];
+          if (project.data().status === "En attente") {
+            await updateDoc(fsDoc(db, "projects", project.id), { status: "En cours" });
+          }
+        }
+      }
     }
   } catch (e) {
     // ignore erreur de mise à jour

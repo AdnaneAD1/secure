@@ -33,6 +33,9 @@ export default function PaymentConfirmationPage() {
           if (!ignore && revolutOrder && revolutOrder.state) {
             setRevolutStatus(revolutOrder.state);
           }
+          if(revolutOrder.state === "paid" || revolutOrder.state === "completed") {
+            setStatus("success");
+          }
         } catch {
           // ignore erreur Revolut
         }
