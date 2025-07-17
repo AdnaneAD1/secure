@@ -13,7 +13,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const response = await axios({
       method: 'get',
       maxBodyLength: Infinity,
-      url: `https://sandbox-merchant.revolut.com/api/orders/${orderId}`,
+      url: `https://merchant.revolut.com/api/orders/${orderId}`,
       headers: {
         'Accept': 'application/json',
         'Authorization': `Bearer ${process.env.REVOLUT_API_KEY}`,

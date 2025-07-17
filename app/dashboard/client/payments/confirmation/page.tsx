@@ -35,6 +35,10 @@ export default function PaymentConfirmationPage() {
           }
           if(revolutOrder.state === "paid" || revolutOrder.state === "completed") {
             setStatus("success");
+          }else if(revolutOrder.state === "failed" || revolutOrder.state === "declined") {
+            setStatus("error");
+          }else {
+            setStatus("pending");
           }
         } catch {
           // ignore erreur Revolut
