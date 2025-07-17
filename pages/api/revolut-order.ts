@@ -32,9 +32,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // Firestore update via firebase-admin
     const admin = await import('firebase-admin');
     if (!admin.apps.length) {
+      const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY as string);
       admin.initializeApp({
-        credential: admin.credential.applicationDefault(),
-        // Optionally specify projectId, databaseURL, etc.
+        credential: admin.credential.cert(serviceAccount),
+        projectId: serviceAccount.project_id,
       });
     }
     await admin.firestore().doc(`payments/${paymentId}`).update({
