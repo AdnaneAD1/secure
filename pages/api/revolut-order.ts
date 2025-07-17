@@ -29,10 +29,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (!checkout_url || !revolut_payment_id) {
       return res.status(500).json({ error: "checkout_url ou id manquant dans la réponse Revolut" });
     }
-    // Firestore update
-    const { getFirestore, doc, updateDoc } = await import("firebase/firestore");
-    const db = getFirestore();
-    await updateDoc(doc(db, "payments", paymentId), {
+    // Firestore update via firebase-admin
+    const admin = await import('firebase-admin');
+    if (!admin.apps.length) {
+      admin.initializeApp({
+        credential: admin.credential.applicationDefault(),
+        // Optionally specify projectId, databaseURL, etc.
+      });
+    }
+    await admin.firestore().doc(`payments/${paymentId}`).update({
       revolut_checkout_url: checkout_url,
       revolut_payment_id,
     });
