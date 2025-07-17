@@ -52,7 +52,7 @@ export default function PaymentModal({ open, onClose, payment }: PaymentModalPro
     setPayError(null);
     try {
       const order = await createOrder({
-        amount: payment.amount,
+        amount: payment.amount * 100,
         currency: "EUR", // adapte si besoin
         paymentId: payment.id,
         redirect_url: `${window.location.origin}/dashboard/client/payments/confirmation?paymentId=${payment.id}`
