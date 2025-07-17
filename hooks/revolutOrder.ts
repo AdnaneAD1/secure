@@ -19,7 +19,7 @@ export type RevolutOrderResult = {
  * @param orderId id Revolut de la commande
  * @returns données de la commande (status, ...)
  */
-import { collection, getDocs, query, where, updateDoc, doc as fsDoc } from "firebase/firestore";
+import { collection, getDocs, getDoc, query, where, updateDoc, doc as fsDoc } from "firebase/firestore";
 import { db } from "@/firebase/ClientApp";
 
 export async function fetchRevolutOrderStatus(orderId: string) {
@@ -45,17 +45,14 @@ export async function fetchRevolutOrderStatus(orderId: string) {
       // Si paiement validé, mettre à jour le statut du projet associé si "En attente"
       if (newStatus === "validé" && paymentDoc.data().projectId) {
         const projectRef = fsDoc(db, "projects", paymentDoc.data().projectId);
-        const projectSnap = await getDocs(query(collection(db, "projects"), where("id", "==", paymentDoc.data().projectId)));
-        if (!projectSnap.empty) {
-          const project = projectSnap.docs[0];
-          if (project.data().status === "En attente") {
-            await updateDoc(fsDoc(db, "projects", project.id), { status: "En cours" });
-          }
+        const projectSnap = await getDoc(projectRef);
+        if (projectSnap.exists() && projectSnap.data().status === "En attente") {
+          await updateDoc(projectRef, { status: "En cours" });
         }
       }
     }
   } catch (e) {
-    // ignore erreur de mise à jour
+    console.error('Erreur mise à jour paiement/projet:', e);
   }
 
   return data;
