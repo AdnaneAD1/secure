@@ -3,13 +3,13 @@ import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "@/firebase/ClientApp";
-import { fetchRevolutOrderStatus } from "@/hooks/revolutOrder";
+import { fetchQontoPaymentStatus } from "@/hooks/qontoPayment";
 
 export default function PaymentConfirmationPage() {
   const params = useSearchParams();
   const paymentId = params?.get("paymentId");
   const [status, setStatus] = useState<"loading"|"success"|"pending"|"error">("loading");
-  const [revolutStatus, setRevolutStatus] = useState<string | null>(null);
+  const [qontoStatus, setQontoStatus] = useState<string | null>(null);
 
   useEffect(() => {
     let ignore = false;
@@ -26,22 +26,22 @@ export default function PaymentConfirmationPage() {
       // Vérification locale Firestore
       if (data.status === "validé") setStatus("success");
       else setStatus("pending");
-      // Vérification côté Revolut si revolut_payment_id existe
-      if (data.revolut_payment_id) {
+      // Vérification côté Qonto si qonto_payment_link_id existe
+      if (data.qonto_payment_link_id) {
         try {
-          const revolutOrder = await fetchRevolutOrderStatus(data.revolut_payment_id);
-          if (!ignore && revolutOrder && revolutOrder.state) {
-            setRevolutStatus(revolutOrder.state);
+          const qontoPayment = await fetchQontoPaymentStatus(data.qonto_payment_link_id);
+          if (!ignore && qontoPayment && qontoPayment.link_status) {
+            setQontoStatus(qontoPayment.link_status);
           }
-          if(revolutOrder.state === "paid" || revolutOrder.state === "completed") {
+          if(qontoPayment.has_successful_payment) {
             setStatus("success");
-          }else if(revolutOrder.state === "failed" || revolutOrder.state === "declined") {
+          }else if(qontoPayment.link_status === "expired" || qontoPayment.link_status === "cancelled") {
             setStatus("error");
           }else {
             setStatus("pending");
           }
         } catch {
-          // ignore erreur Revolut
+          // ignore erreur Qonto
         }
       }
     }).catch(() => setStatus("error"));
@@ -56,9 +56,9 @@ export default function PaymentConfirmationPage() {
         {status === "success" && <div className="text-green-600 font-bold text-xl">✅ Paiement validé !<div className="mt-2 text-base font-normal text-gray-700">Merci, votre paiement a bien été pris en compte.</div></div>}
         {status === "pending" && <div className="text-amber-600 font-bold text-xl">⏳ Paiement en attente de validation.<div className="mt-2 text-base font-normal text-gray-700">Votre paiement est en cours de traitement. Vous recevrez une confirmation dès validation.</div></div>}
         {status === "error" && <div className="text-red-600 font-bold text-xl">❌ Paiement introuvable ou erreur.<div className="mt-2 text-base font-normal text-gray-700">Si le problème persiste, contactez le support.</div></div>}
-        {revolutStatus && (
+        {qontoStatus && (
           <div className="mt-4 text-sm text-gray-700">
-            <span className="font-semibold">Statut Revolut&nbsp;:</span> {revolutStatus}
+            <span className="font-semibold">Statut Qonto&nbsp;:</span> {qontoStatus}
           </div>
         )}
       </div>

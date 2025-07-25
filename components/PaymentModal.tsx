@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import type { ProjectPayment } from "@/hooks/payments";
 import { updatePaymentValidationInfo } from "@/hooks/payments";
-import { useCreateRevolutOrder } from "@/hooks/revolutOrder";
+import { useCreateQontoPayment } from "@/hooks/qontoPayment";
 
 
 interface PaymentModalProps {
@@ -13,10 +13,10 @@ interface PaymentModalProps {
 
 export default function PaymentModal({ open, onClose, payment }: PaymentModalProps) {
   const [ibanCopied, setIbanCopied] = useState(false);
-  const IBAN = "FR76 3000 4000 0100 0001 2345 678";
-  const BIC = "BNPAFRPPXXX";
-  const HOLDER = "ACME Solutions SAS";
-  const BANK = "BNP Paribas";
+  const IBAN = "FR7616958000016272158217962";
+  const BIC = "QNTOFRP1XXX";
+  const HOLDER = "Resotravaux";
+  const BANK = "Qonto";
 
   const [showValidationForm, setShowValidationForm] = useState(false);
   const [transferAmount, setTransferAmount] = useState(payment?.amount || "");
@@ -27,7 +27,7 @@ export default function PaymentModal({ open, onClose, payment }: PaymentModalPro
   const [formError, setFormError] = useState<string | null>(null);
   const [formSuccess, setFormSuccess] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
-  const { createOrder, loading, error } = useCreateRevolutOrder();
+  const { createPaymentLink, loading, error } = useCreateQontoPayment();
   const [paying, setPaying] = useState(false);
   const [payError, setPayError] = useState<string | null>(null);
 
@@ -51,19 +51,19 @@ export default function PaymentModal({ open, onClose, payment }: PaymentModalPro
     setPaying(true);
     setPayError(null);
     try {
-      const order = await createOrder({
-        amount: payment.amount * 100,
-        currency: "EUR", // adapte si besoin
+      const result = await createPaymentLink({
+        amount: payment.amount * 100, // Montant en centimes
+        currency: "EUR",
         paymentId: payment.id,
-        redirect_url: `${window.location.origin}/dashboard/client/payments/confirmation?paymentId=${payment.id}`
+        description: `Paiement SecureAcompte - ${payment.title}`
       });
-      if (order && order.checkout_url) {
-        window.location.href = order.checkout_url;
+      if (result && result.payment_url) {
+        window.location.href = result.payment_url;
       } else {
-        setPayError("Impossible de générer le lien de paiement en ligne.");
+        setPayError("Impossible de générer le lien de paiement Qonto.");
       }
     } catch (e: any) {
-      setPayError(e.message || "Erreur lors de la création du paiement en ligne.");
+      setPayError(e.message || "Erreur lors de la création du lien de paiement Qonto.");
     } finally {
       setPaying(false);
     }
@@ -109,7 +109,7 @@ export default function PaymentModal({ open, onClose, payment }: PaymentModalPro
               </div>
             </div>
           </div>
-          <div className="flex flex-col gap-2 pt-2">
+          {/* <div className="flex flex-col gap-2 pt-2">
             <button
               className="px-4 py-2 rounded-xl bg-blue-600 text-white font-medium disabled:opacity-60"
               onClick={handlePayOnline}
@@ -118,20 +118,20 @@ export default function PaymentModal({ open, onClose, payment }: PaymentModalPro
               {paying || loading ? "Création du lien…" : "Payer en ligne via Revolut"}
             </button>
             {payError && <div className="text-red-500 text-sm mt-1">{payError}</div>}
-          </div>
+          </div> */}
           {/* Séparateur "ou" */}
-          <div className="flex items-center my-4">
+          {/* <div className="flex items-center my-4">
             <div className="flex-grow border-t border-gray-300"></div>
             <span className="mx-4 text-gray-500 font-semibold">ou</span>
             <div className="flex-grow border-t border-gray-300"></div>
-          </div>
+          </div> */}
           <div className="pt-6">
             {!showValidationForm && !formSuccess && (
               <button
                 className="px-4 py-2 rounded-xl bg-green-600 text-white font-medium"
                 onClick={() => setShowValidationForm(true)}
               >
-                Valider le paiement manuel
+                Valider le virement bancaire
               </button>
             )}
 
