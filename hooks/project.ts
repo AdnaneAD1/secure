@@ -25,6 +25,134 @@ export interface Project {
   client_id: string;
 }
 
+// Interface pour les devis uniforme
+export interface UnifiedDevis {
+  id: string;
+  titre?: string;
+  title?: string;
+  type?: string;
+  status?: string;
+  statut?: string;
+  montant?: number;
+  pdfUrl?: string;
+  numero?: string;
+  selectedItems?: any[];
+  url?: string;
+  attribution?: {
+    artisanName?: string;
+    artisanId?: string;
+  };
+  createdAt?: string;
+  updatedAt?: string;
+  // Métadonnées ajoutées par notre fonction
+  _collection: string;
+  _type: 'devis'; // Seulement devis maintenant
+  _originalStatus?: string; // Statut original avant mapping côté client
+}
+
+// Configuration des collections de devis
+export const DEVIS_COLLECTIONS = [
+  { name: "devis", projectField: "id_projet", type: "devis" as const },
+  { name: "devisConfig", projectField: "projectId", type: "devis" as const }
+] as const;
+
+// Fonction pour mapper les statuts côté client (masquer certains statuts)
+export function mapStatusForClient(status: string): string {
+  // Mapper "Envoyé au client" vers "En attente" pour le côté client
+  if (status === "Envoyé au client") {
+    return "En attente";
+  }
+  return status;
+}
+
+// Fonction pour normaliser les devis de différentes collections
+export function normalizeDevis(devis: any, collectionName: string, isClientSide: boolean = false): UnifiedDevis {
+  const originalStatus = devis.status || devis.statut;
+  const mappedStatus = isClientSide ? mapStatusForClient(originalStatus) : originalStatus;
+  
+  return {
+    ...devis,
+    id: devis.id,
+    titre: devis.titre || devis.title,
+    status: mappedStatus,
+    _originalStatus: originalStatus,
+    _collection: collectionName,
+    _type: "devis" // Toujours devis maintenant
+  };
+}
+
+// Fonction pour filtrer les devis par type
+export function filterDevisByType(devisList: UnifiedDevis[], type?: 'devis'): UnifiedDevis[] {
+  if (!type) return devisList;
+  return devisList.filter(devis => devis._type === type);
+}
+
+// Fonction pour filtrer les devis par statut
+export function filterDevisByStatus(devisList: UnifiedDevis[], status?: string): UnifiedDevis[] {
+  if (!status) return devisList;
+  return devisList.filter(devis => devis.status === status);
+}
+
+// Fonction pour grouper les devis par type
+export function groupDevisByType(devisList: UnifiedDevis[]): { devis: UnifiedDevis[] } {
+  return {
+    devis: devisList.filter(d => d._type === 'devis')
+  };
+}
+
+// Fonction pour grouper les devis par collection
+export function groupDevisByCollection(devisList: UnifiedDevis[]): Record<string, UnifiedDevis[]> {
+  return devisList.reduce((acc, devis) => {
+    if (!acc[devis._collection]) {
+      acc[devis._collection] = [];
+    }
+    acc[devis._collection].push(devis);
+    return acc;
+  }, {} as Record<string, UnifiedDevis[]>);
+}
+
+// Fonction pour obtenir les statistiques des devis
+export function getDevisStatistics(devisList: UnifiedDevis[]) {
+  const stats = {
+    total: devisList.length,
+    byType: {
+      devis: devisList.filter(d => d._type === 'devis').length
+    },
+    byStatus: {} as Record<string, number>,
+    byCollection: {} as Record<string, number>,
+    totalAmount: 0
+  };
+
+  devisList.forEach(devis => {
+    // Compter par statut
+    const status = devis.status || 'Non défini';
+    stats.byStatus[status] = (stats.byStatus[status] || 0) + 1;
+
+    // Compter par collection
+    stats.byCollection[devis._collection] = (stats.byCollection[devis._collection] || 0) + 1;
+
+    // Calculer le montant total
+    if (devis.montant) {
+      stats.totalAmount += devis.montant;
+    }
+  });
+
+  return stats;
+}
+
+// Fonction pour rechercher dans les devis
+export function searchDevis(devisList: UnifiedDevis[], searchTerm: string): UnifiedDevis[] {
+  if (!searchTerm.trim()) return devisList;
+  
+  const term = searchTerm.toLowerCase();
+  return devisList.filter(devis => 
+    (devis.titre || '').toLowerCase().includes(term) ||
+    (devis.numero || '').toLowerCase().includes(term) ||
+    (devis.status || '').toLowerCase().includes(term) ||
+    devis._collection.toLowerCase().includes(term)
+  );
+}
+
 export async function seedDevisForProjects(projectIds: string[]) {
   const devisTemplates = [
     {
@@ -55,15 +183,122 @@ export async function seedDevisForProjects(projectIds: string[]) {
   }
 }
 
-export async function getDevisByProjectId(projectId: string) {
+export async function getDevisByProjectId(projectId: string, isClientSide: boolean = false): Promise<UnifiedDevis[]> {
   try {
-    const devisRef = collection(db, "devis");
-    const q = query(devisRef, where("id_projet", "==", projectId));
-    const querySnapshot = await getDocs(q);
-    const devisList = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    return devisList;
+    const allDevis: UnifiedDevis[] = [];
+
+    // Récupérer les devis de chaque collection configurée
+    for (const collectionInfo of DEVIS_COLLECTIONS) {
+      try {
+        const devisRef = collection(db, collectionInfo.name);
+        const q = query(devisRef, where(collectionInfo.projectField, "==", projectId));
+        const querySnapshot = await getDocs(q);
+        
+        const devisFromCollection = querySnapshot.docs.map(doc => 
+          normalizeDevis({ id: doc.id, ...doc.data() }, collectionInfo.name, isClientSide)
+        );
+        
+        allDevis.push(...devisFromCollection);
+        console.log(`✅ Récupéré ${devisFromCollection.length} documents de la collection ${collectionInfo.name}`);
+      } catch (collectionError) {
+        console.warn(`⚠️ Erreur lors de la récupération depuis ${collectionInfo.name}:`, collectionError);
+        // Continue avec les autres collections même si une échoue
+      }
+    }
+
+    // Trier par date de création (plus récent en premier) ou par titre
+    allDevis.sort((a, b) => {
+      if (a.createdAt && b.createdAt) {
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+      }
+      if (a.updatedAt && b.updatedAt) {
+        return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
+      }
+      return (a.titre || '').localeCompare(b.titre || '');
+    });
+
+    const logPrefix = isClientSide ? '👤 [CLIENT]' : '🔧 [ADMIN]';
+    console.log(`📊 ${logPrefix} Total des devis récupérés pour le projet ${projectId}:`, {
+      total: allDevis.length,
+      devis: allDevis.filter(d => d._type === 'devis').length,
+      parCollection: DEVIS_COLLECTIONS.reduce((acc, col) => {
+        acc[col.name] = allDevis.filter(d => d._collection === col.name).length;
+        return acc;
+      }, {} as Record<string, number>),
+      statusMapping: isClientSide ? 'Statuts mappés pour client' : 'Statuts originaux'
+    });
+
+    return allDevis;
   } catch (err) {
-    console.error("Erreur lors de la récupération des devis:", err);
+    console.error("❌ Erreur lors de la récupération des devis:", err);
+    return [];
+  }
+}
+// Fonction pour mettre à jour le statut d'un devis côté client
+export async function updateDevisStatus(devisId: string, collectionName: string, newStatus: string): Promise<boolean> {
+  try {
+    console.log(`Mise à jour du statut du devis ${devisId} vers ${newStatus}`);
+    
+    const devisRef = doc(db, collectionName, devisId);
+    await updateDoc(devisRef, {
+      status: newStatus,
+      updatedAt: new Date().toISOString(),
+      clientActionDate: new Date().toISOString()
+    });
+    
+    console.log(`✅ Statut du devis ${devisId} mis à jour avec succès`);
+    return true;
+  } catch (error) {
+    console.error(`❌ Erreur lors de la mise à jour du statut du devis ${devisId}:`, error);
+    return false;
+  }
+}
+
+export async function getDevisForClient(projectId: string): Promise<UnifiedDevis[]> {
+  try {
+    console.log(`🔍 [CLIENT] Récupération des devis pour le projet ${projectId}`);
+    
+    // Récupérer tous les devis du projet
+    const allDevis = await getDevisByProjectId(projectId, true); // isClientSide = true pour le mapping des statuts
+    
+    console.log(`📊 [CLIENT] ${allDevis.length} devis trouvés au total`);
+    
+    // Filtrer pour ne garder que les devis "Envoyé au client" et "Validé" côté client
+    const clientDevis = allDevis.filter(devis => {
+      const shouldShow = devis._originalStatus === 'Envoyé au client' || devis._originalStatus === 'Validé';
+      
+      if (shouldShow) {
+        console.log(`✅ [CLIENT] Devis ${devis.id} affiché (statut original: ${devis._originalStatus}, statut affiché: ${devis.status})`);
+      } else {
+        console.log(`❌ [CLIENT] Devis ${devis.id} masqué (statut: ${devis._originalStatus})`);
+      }
+      
+      return shouldShow;
+    });
+    
+    // Trier par date de création/mise à jour (plus récent en premier)
+    clientDevis.sort((a, b) => {
+      if (a.createdAt && b.createdAt) {
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+      }
+      if (a.updatedAt && b.updatedAt) {
+        return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
+      }
+      return (a.titre || '').localeCompare(b.titre || '');
+    });
+    
+    console.log(`🎯 [CLIENT] ${clientDevis.length} devis filtrés pour affichage client`);
+    
+    // Log détaillé des montants pour debug
+    clientDevis.forEach(devis => {
+      const montantFields = ['montant', 'amount', 'prix', 'price', 'total', 'totalAmount', 'cost'];
+      const foundMontant = montantFields.find(field => (devis as any)[field] !== undefined);
+      console.log(`💰 [CLIENT] Devis ${devis.id}: montant = ${devis.montant} (trouvé via ${foundMontant || 'aucun champ'})`);
+    });
+    
+    return clientDevis;
+  } catch (error) {
+    console.error(`❌ [CLIENT] Erreur lors de la récupération des devis pour le projet ${projectId}:`, error);
     return [];
   }
 }

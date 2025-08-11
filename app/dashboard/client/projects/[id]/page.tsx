@@ -1,12 +1,28 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useProjects, getUserProfileById, getDevisByProjectId } from "@/hooks/project";
+import { useEffect, useState, useCallback } from "react";
+import { useProjects, getUserProfileById, getDevisForClient, updateDevisStatus } from "@/hooks/project";
 import { useAcceptedArtisans } from "@/hooks/acceptedArtisans";
 import { useAuth } from "@/hooks/auth";
 import Image from "next/image";
 import Link from "next/link";
-import { Phone, Mail, MapPin, Users } from "lucide-react";
+import { 
+  Users, 
+  MoreVertical, 
+  Check, 
+  Edit, 
+  Download, 
+  Phone, 
+  Mail, 
+  MapPin 
+} from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export default function ProjectDetailsPage({ params }: { params: { id: string } }) {
   // Hook pour artisans acceptés
@@ -18,6 +34,7 @@ export default function ProjectDetailsPage({ params }: { params: { id: string } 
   const [profileLoading, setProfileLoading] = useState(false);
   const [devis, setDevis] = useState<any[]>([]);
   const [devisLoading, setDevisLoading] = useState(false);
+  // Suppression de l'état openMenuId car Radix UI gère cela automatiquement
 
   useEffect(() => {
     if (user?.uid) fetchProjects();
@@ -39,21 +56,85 @@ export default function ProjectDetailsPage({ params }: { params: { id: string } 
       });
     } else {
       setClientProfile(null);
-    }
+    };
   }, [project?.client_id]);
 
-  useEffect(() => {
+  // Fonction pour charger les devis
+  const loadDevis = useCallback(async () => {
     if (project && project.id) {
       setDevisLoading(true);
-      getDevisByProjectId(project.id).then(list => {
+      try {
+        const list = await getDevisForClient(project.id);
         setDevis(list);
+        console.log('👤 Devis chargés côté client (statuts mappés):', list);
+      } catch (error) {
+        console.error('Erreur lors du chargement des devis:', error);
+      } finally {
         setDevisLoading(false);
-      });
+      }
     } else {
       setDevis([]);
     }
-    console.log(devis);
   }, [project?.id]);
+
+  // Chargement initial des devis
+  useEffect(() => {
+    loadDevis();
+  }, [loadDevis]);
+
+  // Rafraîchissement automatique toutes les 30 secondes
+  useEffect(() => {
+    if (!project?.id) return;
+    
+    const interval = setInterval(() => {
+      console.log('🔄 [AUTO-REFRESH] Rafraîchissement automatique des devis...');
+      loadDevis();
+    }, 30000); // 30 secondes
+
+    return () => clearInterval(interval);
+  }, [project?.id, loadDevis]);
+
+  // Rafraîchissement quand la page reprend le focus
+  useEffect(() => {
+    const handleFocus = () => {
+      console.log('🔄 [FOCUS-REFRESH] Page en focus, rafraîchissement des devis...');
+      loadDevis();
+    };
+
+    window.addEventListener('focus', handleFocus);
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) {
+        handleFocus();
+      }
+    });
+
+    return () => {
+      window.removeEventListener('focus', handleFocus);
+      document.removeEventListener('visibilitychange', handleFocus);
+    };
+  }, [loadDevis]);
+
+  // Fonction pour gérer les actions client sur les devis
+  const handleDevisAction = async (devisId: string, collectionName: string, action: 'Validé' | 'À modifier') => {
+    try {
+      setDevisLoading(true);
+      const success = await updateDevisStatus(devisId, collectionName, action);
+      
+      if (success) {
+        console.log(`🎉 [CLIENT-SUCCESS] Devis ${action.toLowerCase()} avec succès`);
+        // Recharger les devis pour voir les changements
+        await loadDevis();
+      } else {
+        console.error(`❌ [CLIENT-ERROR] Échec de l'action ${action}`);
+        alert(`Erreur lors de la ${action.toLowerCase()} du devis. Veuillez réessayer.`);
+      }
+    } catch (error) {
+      console.error('Erreur lors de l\'action sur le devis:', error);
+      alert('Une erreur est survenue. Veuillez réessayer.');
+    } finally {
+      setDevisLoading(false);
+    }
+  };
 
   if (!project) {
     return <div className="p-8 text-center text-gray-500">Chargement du projet...</div>;
@@ -342,43 +423,91 @@ export default function ProjectDetailsPage({ params }: { params: { id: string } 
                         {d.type || 'Devis'}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        {d.statut === 'Validé' ? (
+                        {d.status === 'Validé' ? (
                           <span className="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
                             Validé
                           </span>
-                        ) : d.statut === 'En attente' ? (
+                        ) : d.status === 'En attente' ? (
                           <span className="px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
                             En attente
                           </span>
-                        ) : d.statut === 'Refusé' ? (
+                        ) : d.status === 'Refusé' ? (
                           <span className="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">
                             Refusé
                           </span>
                         ) : (
                           <span className="px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">
-                            {d.statut || 'Inconnu'}
+                            {d.status || 'Inconnu'}
                           </span>
                         )}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {d.montant ? `${Number(d.montant).toLocaleString()} €` : '-'}
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">
+                        {d.montant ? `€ ${Number(d.montant).toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '-'}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {d.pdfUrl ? (
-                          <a
-                            href={d.pdfUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-blue-600 hover:text-blue-800 hover:underline flex items-center gap-1"
-                          >
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                              <path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                            </svg>
-                            Télécharger
-                          </a>
-                        ) : (
-                          <span className="text-gray-400">Aucun PDF</span>
-                        )}
+                        <div className="flex items-center justify-center">
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <button
+                                disabled={devisLoading}
+                                className="p-1 text-gray-400 hover:text-gray-600 disabled:text-gray-300 transition-colors rounded-md hover:bg-gray-100"
+                                title="Actions"
+                              >
+                                <MoreVertical className="w-4 h-4" />
+                              </button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="center" className="w-48">
+                              {/* Option Télécharger PDF */}
+                              {d.pdfUrl && (
+                                <>
+                                  <DropdownMenuItem asChild>
+                                    <a
+                                      href={d.pdfUrl}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="flex items-center gap-2 cursor-pointer"
+                                    >
+                                      <Download className="w-4 h-4 text-blue-600" />
+                                      Télécharger le PDF
+                                    </a>
+                                  </DropdownMenuItem>
+                                  {d.status === 'En attente' && <DropdownMenuSeparator />}
+                                </>
+                              )}
+                              
+                              {/* Options pour les devis en attente */}
+                              {d.status === 'En attente' && (
+                                <>
+                                  <DropdownMenuItem
+                                    onClick={() => handleDevisAction(d.id, d._collection, 'Validé')}
+                                    disabled={devisLoading}
+                                    className="flex items-center gap-2 cursor-pointer"
+                                  >
+                                    <Check className="w-4 h-4 text-green-600" />
+                                    Valider le devis
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem
+                                    onClick={() => handleDevisAction(d.id, d._collection, 'À modifier')}
+                                    disabled={devisLoading}
+                                    className="flex items-center gap-2 cursor-pointer"
+                                  >
+                                    <Edit className="w-4 h-4 text-orange-600" />
+                                    Demander des modifications
+                                  </DropdownMenuItem>
+                                </>
+                              )}
+                              
+                              {/* Message pour les devis déjà traités */}
+                              {d.status !== 'En attente' && !d.pdfUrl && (
+                                <DropdownMenuItem disabled className="text-xs text-gray-400 italic justify-center">
+                                  {d.status === 'Validé' ? 'Devis validé' : 
+                                   d.status === 'À modifier' ? 'Modifications demandées' : 
+                                   'Traité'}
+                                </DropdownMenuItem>
+                              )}
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </div>
                       </td>
                     </tr>
                   ))
