@@ -13,9 +13,9 @@ interface PaymentModalProps {
 
 export default function PaymentModal({ open, onClose, payment }: PaymentModalProps) {
   const [ibanCopied, setIbanCopied] = useState(false);
-  const IBAN = "FR7616958000011468042768065";
+  const IBAN = "FR7616958000016272158217962";
   const BIC = "QNTOFRP1XXX";
-  const HOLDER = "SECURE ACOMPTE";
+  const HOLDER = "Resotravaux";
   const BANK = "Qonto";
 
   const [showValidationForm, setShowValidationForm] = useState(false);
