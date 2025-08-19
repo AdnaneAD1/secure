@@ -2,6 +2,7 @@
 import React from "react";
 import type { ProjectPayment } from "@/hooks/payments";
 import jsPDF from "jspdf";
+import { Timestamp } from "firebase/firestore";
 
 interface PaymentDetailsModalProps {
   open: boolean;
@@ -16,6 +17,55 @@ const PaymentDetailsModal: React.FC<PaymentDetailsModalProps> = ({ open, onClose
   const handleDownloadInvoice = async () => {
     if (!payment) return;
     setLoadingPDF(true);
+    
+    // Fonction utilitaire pour formater la date au format JJ/MM/AAAA
+    const formatDate = (dateInput: string | number | undefined | { seconds?: number; nanoseconds?: number }): string => {
+      if (!dateInput) return '[Date non disponible]';
+      
+      try {
+        let date: Date;
+        
+        
+        // Si c'est un objet Firestore Timestamp
+        if (typeof dateInput === 'object' && dateInput !== null) {
+          if ('toDate' in dateInput) {
+            date = (dateInput as Timestamp).toDate(); // Méthode toDate() des timestamps Firestore
+          } else if (dateInput.seconds) {
+            date = new Date(dateInput.seconds * 1000); // Timestamp en secondes
+          } else {
+            return '[Format de date non supporté]';
+          }
+        } 
+        // Si c'est un timestamp numérique (millisecondes ou secondes)
+        else if (typeof dateInput === 'number') {
+          // Si le timestamp est en secondes (Firestore) plutôt qu'en millisecondes
+          date = dateInput > 1e10 ? new Date(dateInput) : new Date(dateInput * 1000);
+        }
+        // Si c'est une chaîne de caractères
+        else if (typeof dateInput === 'string') {
+          // Si la date est au format YYYY-MM-DD
+          if (/^\d{4}-\d{2}-\d{2}$/.test(dateInput)) {
+            const [year, month, day] = dateInput.split('-').map(Number);
+            return `${day.toString().padStart(2, '0')}/${month.toString().padStart(2, '0')}/${year}`;
+          }
+          // Sinon, essayer de créer une date à partir de la chaîne
+          date = new Date(dateInput);
+        } else {
+          return '[Format de date inconnu]';
+        }
+        
+        // Vérifier que la date est valide
+        if (isNaN(date.getTime())) return '[Date invalide]';
+        
+        // Formater la date en JJ/MM/AAAA
+        return date.toLocaleDateString('fr-FR');
+        
+      } catch (e) {
+        console.error('Erreur de formatage de date:', e);
+        return '[Erreur de date]';
+      }
+    };
+
     try {
       // 1. Charger le logo en base64
       const logoUrl = '/Logo-2025.png';
@@ -74,7 +124,7 @@ const PaymentDetailsModal: React.FC<PaymentDetailsModalProps> = ({ open, onClose
       y += 6;
       doc.text(`Projet : ${payment.project || '[Adresse ou description du chantier]'}`, margin, y);
       y += 6;
-      doc.text(`Date : ${payment.date || '[Date du jour]'}`, margin, y);
+      doc.text(`Date : ${formatDate(payment.date) || '[Date du jour]'}`, margin, y);
       y += 10;
 
       // Corps de l'attestation
@@ -86,7 +136,7 @@ const PaymentDetailsModal: React.FC<PaymentDetailsModalProps> = ({ open, onClose
       const nomClient = payment.client?.firstName || '[Nom du client]';
       const refDossier = payment.id || '[Référence interne ou n° devis]';
       const modePaiement = 'Virement';
-      const dateValidation = payment.dateValidation || '[Date de validation]';
+      const dateValidationFormatted = formatDate(payment.dateValidation);
       const courtier = payment.courtier?.name || '[Prénom NOM]';
 
       const lines = [
@@ -94,19 +144,19 @@ const PaymentDetailsModal: React.FC<PaymentDetailsModalProps> = ({ open, onClose
         "",
         "Cet acompte a été versé via notre système de sécurisation d’acompte, garantissant que les fonds ne sont transmis qu’après validation explicite du client.",
         "",
-        `À la date du ${dateValidation}, le client a validé la proposition, déclenchant ainsi le déblocage de l’acompte.`,
+        `À la date du ${dateValidationFormatted}, le client a validé la proposition, déclenchant ainsi le déblocage de l’acompte.`,
         "",
         "L’acompte a donc été transféré à AXIMOTRAVO, qui le remettra intégralement au prestataire sélectionné pour la réalisation des travaux, conformément à la mission de courtage.",
         "",
         "Détails de l’acompte :",
         `Montant : ${montant}`,
-        `Date de validation client : ${dateValidation}`,
+        `Date de validation client : ${dateValidationFormatted}`,
         `Mode de paiement : ${modePaiement}`,
         `Référence du dossier : ${refDossier}`,
         "",
         "Cette attestation confirme que les fonds ont été reçus par Aximotravo uniquement après validation formelle du client, et dans le cadre strict de notre rôle d’intermédiaire entre le client et les professionnels du bâtiment.",
         "",
-        `Fait à AXIMOTRAVO, le ${dateValidation}`,
+        `Fait à AXIMOTRAVO, le ${dateValidationFormatted}`,
         "",
         "Note : Cette attestation n’est pas une facture. Le prestataire émettra sa propre facture pour les prestations à réaliser."
       ];
