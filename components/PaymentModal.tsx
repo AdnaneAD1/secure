@@ -15,7 +15,7 @@ export default function PaymentModal({ open, onClose, payment }: PaymentModalPro
   const [ibanCopied, setIbanCopied] = useState(false);
   const IBAN = "FR7616958000016272158217962";
   const BIC = "QNTOFRP1XXX";
-  const HOLDER = "Resotravaux";
+  const HOLDER = "Aximotravo";
   const BANK = "Qonto";
 
   const [showValidationForm, setShowValidationForm] = useState(false);
