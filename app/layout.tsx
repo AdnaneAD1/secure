@@ -1,7 +1,6 @@
 import './globals.css';
 import type { Metadata } from 'next';
 import { Work_Sans } from 'next/font/google';
-import { redirect } from 'next/navigation';
 
 const workSans = Work_Sans({ 
   subsets: ['latin'],
@@ -10,8 +9,8 @@ const workSans = Work_Sans({
 });
 
 export const metadata: Metadata = {
-  title: 'SecureAcompte - Maintenance',
-  description: 'Site en maintenance - Nous serons bientôt de retour',
+  title: 'SecureAcompte',
+  description: 'Sécurisez vos acomptes de travaux en toute confiance',
 };
 
 export default function RootLayout({
